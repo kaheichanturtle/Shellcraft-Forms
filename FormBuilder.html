@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shellcraft Forms Creator</title>
+    <link rel="icon" href="https://kaheichan.neocities.org/images/Shellcraft.png">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    <!-- SortableJS for drag-and-drop -->
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+
+    <style>
+        :root {
+            --shell-border: #1a202c; --shell-bg: #ffffff; --shell-text: #1a202c;
+            --shell-yellow: #f4d738; --shell-gray: #f3f4f6; --shell-accent: #6b7280;
+            --shell-red: #ef4444;
+        }
+        * { box-sizing: border-box; }
+        html, body {
+            height: 100vh; margin: 0; padding: 0; overflow: hidden;
+            font-family: 'Inter', sans-serif; background-color: var(--shell-gray); color: var(--shell-text);
+        }
+        .hidden { display: none !important; }
+
+        /* --- Generator Start Screen --- */
+        #generator-start-screen {
+            position: fixed; inset: 0; z-index: 2000;
+            display: flex; align-items: center; justify-content: center;
+            background-color: var(--shell-gray); text-align: center; padding: 2rem;
+        }
+        #generator-start-screen .start-content { max-width: 600px; }
+        #generator-start-screen h1 { font-size: 2.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        #generator-start-screen h1 a { color: var(--shell-text); text-decoration: none; border-bottom: 4px solid var(--shell-yellow); }
+        #generator-start-screen h1 a:hover { background-color: var(--shell-yellow); }
+        #generator-start-screen p { font-size: 1.25rem; color: var(--shell-accent); margin-bottom: 2.5rem; }
+        #start-creator-btn { width: auto; padding: 14px 40px; font-size: 1.2rem; }
+
+        /* --- Main Creator Wrapper --- */
+        #creator-wrapper { display: flex; width: 100%; height: 100vh; }
+
+        /* --- Generator UI --- */
+        #generator-ui {
+            flex: 0 0 550px; width: 550px; height: 100vh; overflow-y: auto; padding: 2rem;
+            border-right: 3px solid var(--shell-border);
+        }
+        .creator-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 2rem; }
+        .creator-logo { width: 40px; height: 40px; }
+        .creator-header h1 { font-size: 1.5rem; margin: 0; }
+
+        /* Accordion Styles */
+        #accordion-container { display: flex; flex-direction: column; gap: 1.25rem; }
+        .accordion-item {
+            background-color: var(--shell-bg); border: 3px solid var(--shell-border);
+            border-radius: 4px; box-shadow: 5px 5px 0 0 var(--shell-border); overflow: hidden;
+        }
+        .accordion-header {
+            width: 100%; background: none; border: none; border-bottom: 3px solid transparent;
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 1rem 1.5rem; cursor: pointer; text-align: left; transition: border-color 0.2s;
+        }
+        .accordion-header h2 {
+            font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em;
+            margin: 0; padding: 0; border: none;
+        }
+        .accordion-icon { transition: transform 0.3s ease-out; font-size: 1rem; }
+        .accordion-header.active .accordion-icon { transform: rotate(180deg); }
+        .accordion-header.active { border-bottom-color: var(--shell-gray); }
+        .accordion-panel { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .accordion-content { padding: 0 1.5rem 1.5rem 1.5rem; }
+
+        .control-group { margin-bottom: 1.25rem; }
+        .control-group label { display: block; font-weight: 700; margin-bottom: 0.5rem; font-size: 0.9rem; }
+        .control-group input[type="text"], .control-group input[type="url"], .control-group input[type="number"],
+        .control-group textarea, .control-group select {
+            width: 100%; padding: 0.75rem; font-size: 1rem; font-family: 'Inter', sans-serif;
+            border: 3px solid var(--shell-border); border-radius: 4px; background-color: var(--shell-bg);
+            transition: box-shadow 0.2s;
+        }
+        .control-group input:focus, .control-group textarea:focus, .control-group select:focus {
+            outline: none; box-shadow: 0 0 0 3px var(--shell-yellow);
+        }
+        .color-picker-group { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .color-picker-item input[type="color"] { width: 100%; height: 45px; padding: 0; border: 3px solid var(--shell-border); cursor: pointer; }
+        .neobrutal-button {
+            border: 3px solid var(--shell-border); box-shadow: 5px 5px 0 0 var(--shell-border);
+            background-color: var(--shell-yellow); color: var(--shell-border); font-weight: bold; text-transform: uppercase;
+            letter-spacing: 0.05em; transition: all 0.1s ease-out; cursor: pointer; padding: 12px 28px; font-size: 1rem;
+            display: inline-flex; align-items: center; justify-content: center; gap: 10px; width: 100%;
+        }
+        .neobrutal-button:hover:not(:disabled) { background-color: #ffdb58; box-shadow: 3px 3px 0 0 var(--shell-border); transform: translate(2px, 2px); }
+        #generate-btn { margin-top: 2rem; }
+        .question-card {
+            background-color: var(--shell-bg); border: 3px solid var(--shell-border);
+            box-shadow: 4px 4px 0 0 var(--shell-border); padding: 1rem; margin-bottom: 1.5rem; position: relative;
+        }
+        .question-card-header {
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; cursor: grab;
+            border-bottom: 2px solid var(--shell-gray); padding-bottom: 1rem;
+        }
+        .handle-title { display: flex; align-items: center; gap: 0.75rem; }
+        .drag-handle { color: var(--shell-accent); font-size: 1.2rem; }
+        .question-card h4 { margin: 0; font-size: 1rem; font-weight: 800; }
+        .question-card .actions button { background: none; border: none; cursor: pointer; padding: 0.5rem; color: var(--shell-accent); }
+        .question-card .actions button:hover { color: var(--shell-red); }
+        .terms { font-size: 0.8rem; background-color: var(--shell-gray); border: 2px solid var(--shell-border); padding: 1rem; margin: 2rem 0; border-radius: 4px; }
+        .terms a { color: var(--shell-text); font-weight: bold; }
+        
+        #preview-container { flex: 1; height: 100%; padding: 2rem; background-color: #4A5568; }
+        #preview-frame {
+            width: 100%; height: 100%; border: 3px solid var(--shell-border);
+            box-shadow: 8px 8px 0 0 var(--shell-border); background-color: white;
+        }
+
+        /* --- Tutorial Modal --- */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(26, 32, 44, 0.7); backdrop-filter: blur(5px);
+            z-index: 1000; display: none; align-items: center; justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: var(--shell-bg); border: 3px solid var(--shell-border);
+            box-shadow: 8px 8px 0 0 var(--shell-border); padding: 2rem;
+            width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; position: relative;
+        }
+        .modal-close-btn { position: absolute; top: 1rem; right: 1rem; background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+        .modal-content h3 { margin-top: 0; }
+        .modal-content code {
+            display: block; background: var(--shell-gray); padding: 1rem;
+            border: 2px solid #e2e8f0; border-radius: 4px; white-space: pre-wrap; font-family: monospace;
+        }
+        .modal-content ol li { margin-bottom: 1rem; }
+        .modal-content .highlight { background-color: var(--shell-yellow); padding: 2px 4px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <div id="generator-start-screen">
+        <div class="start-content">
+            <h1>Welcome to the <br> <a href="https://kaheichan.neocities.org" target="_blank">Shellcraft</a> Forms Creator</h1>
+            <p>The free, open-source alternative to Typeform. Build beautiful, multi-step forms with no code.</p>
+            <button id="start-creator-btn" class="neobrutal-button">Start Building</button>
+        </div>
+    </div>
+
+    <div id="creator-wrapper" class="hidden">
+        <aside id="generator-ui">
+            <header class="creator-header">
+                <img src="https://kaheichan.neocities.org/images/Shellcraft.png" alt="Shellcraft Logo" class="creator-logo">
+                <h1>Shellcraft Forms Creator</h1>
+            </header>
+            
+            <div id="accordion-container">
+                <div class="accordion-item">
+                    <button class="accordion-header"><h2>General Settings</h2><i class="fa-solid fa-chevron-down accordion-icon"></i></button>
+                    <div class="accordion-panel"><div class="accordion-content">
+                        <div class="control-group"><label for="formTitle">Form Title</label><input type="text" id="formTitle"></div>
+                        <div class="control-group"><label for="formDescription">Form Description</label><textarea id="formDescription" rows="3"></textarea></div>
+                        <div class="control-group"><label for="startScreenImages">Start Page Image URLs (one per line)</label><textarea id="startScreenImages" rows="3" placeholder="https://.../logo1.png&#10;https://.../logo2.png"></textarea></div>
+                        <div class="control-group"><label for="timeEstimate">Time Estimate Text</label><input type="text" id="timeEstimate"></div>
+                        <div class="control-group"><label for="googleScriptURL">Google Script Web App URL</label><input type="url" id="googleScriptURL" placeholder="Paste your deployed web app URL here"><small>Need one? <a href="#" id="open-tutorial-link">How do I get this?</a></small></div>
+                    </div></div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header"><h2>End Screen</h2><i class="fa-solid fa-chevron-down accordion-icon"></i></button>
+                    <div class="accordion-panel"><div class="accordion-content">
+                        <div class="control-group"><label for="successTitle">Success Title</label><input type="text" id="successTitle"></div>
+                        <div class="control-group"><label for="successDescription">Success Description</label><textarea id="successDescription" rows="2"></textarea></div>
+                    </div></div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header"><h2>Theme & Appearance</h2><i class="fa-solid fa-chevron-down accordion-icon"></i></button>
+                    <div class="accordion-panel"><div class="accordion-content">
+                        <div class="color-picker-group">
+                            <div class="color-picker-item"><label for="borderColor">Border/Text</label><input type="color" id="borderColor"></div>
+                            <div class="color-picker-item"><label for="backgroundColor">Background</label><input type="color" id="backgroundColor"></div>
+                            <div class="color-picker-item"><label for="primaryAccentColor">Primary Accent</label><input type="color" id="primaryAccentColor"></div>
+                            <div class="color-picker-item"><label for="secondaryAccentColor">Secondary Accent</label><input type="color" id="secondaryAccentColor"></div>
+                        </div>
+                        <div class="control-group" style="margin-top: 1rem;"><label for="backgroundImage">Background Image URL (Optional)</label><input type="text" id="backgroundImage" placeholder="Paste image URL here..."></div>
+                        <div class="control-group"><label for="backgroundBlur">Background Blur (px)</label><input type="number" id="backgroundBlur" min="0" max="50" step="1"></div>
+                    </div></div>
+                </div>
+
+                <div class="accordion-item">
+                    <button class="accordion-header" id="questions-accordion-header"><h2>Questions</h2><i class="fa-solid fa-chevron-down accordion-icon"></i></button>
+                    <div class="accordion-panel"><div class="accordion-content">
+                        <div id="questions-list"></div>
+                        <button id="add-question-btn" class="neobrutal-button" style="background-color: var(--shell-bg);"><i class="fa-solid fa-plus"></i> Add Question</button>
+                    </div></div>
+                </div>
+            </div>
+
+            <div class="terms">
+                <strong>Terms of Use:</strong> By generating a form, you agree to keep the "Powered by Shellcraft Forms" attribution visible. This helps support the project. For more information, see the <a href="https://kaheichan.neocities.org/privacyandterms" target="_blank">Terms & Privacy Policy</a>.
+            </div>
+            <button id="generate-btn" class="neobrutal-button"><i class="fa-solid fa-download"></i> Generate & Download HTML</button>
+        </aside>
+        <main id="preview-container"><iframe id="preview-frame" title="Live Form Preview"></iframe></main>
+    </div>
+
+    <!-- Tutorial Modal -->
+    <div id="tutorial-modal" class="modal-overlay">
+        <div class="modal-content">
+            <button id="close-tutorial-btn" class="modal-close-btn">&times;</button>
+            <h3>How to Get Your Google Script URL</h3>
+            <p>Follow these steps to create a smart backend that will collect your form responses in a Google Sheet.</p>
+            <ol>
+                <li>Go to <a href="https://sheets.google.com/create" target="_blank">sheets.google.com/create</a> to create a new spreadsheet. Name it whatever you like.</li>
+                <li><span class="highlight"><strong>Important first step:</strong></span> Click on cell <strong>A1</strong> (the top-left cell) and type at least one header name, like "Timestamp". This helps the script work correctly from the very first submission.</li>
+                <li>In the menu, go to <strong>Extensions</strong> &rarr; <strong>Apps Script</strong>.</li>
+                <li>Delete any placeholder code and paste the following script. This new script automatically handles all your other headers for you.
+                    <code>function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var newRow = new Array(headers.length).fill('');
+    
+    var headerMap = {};
+    headers.forEach(function(header, i) {
+      headerMap[header] = i;
+    });
+    
+    for (var key in e.parameter) {
+      if (headerMap.hasOwnProperty(key)) {
+        newRow[headerMap[key]] = e.parameter[key];
+      } else {
+        var newHeaderIndex = headers.length;
+        sheet.getRange(1, newHeaderIndex + 1).setValue(key);
+        headers.push(key);
+        headerMap[key] = newHeaderIndex;
+        while(newRow.length < headers.length) { newRow.push(''); }
+        newRow[newHeaderIndex] = e.parameter[key];
+      }
+    }
+    
+    sheet.appendRow(newRow);
+    
+    return ContentService.createTextOutput(JSON.stringify({ "result": "success" })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ "result": "error", "error": error.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}</code>
+                </li>
+                <li>Save the project (floppy disk icon).</li>
+                <li>Click the blue <strong>Deploy</strong> button &rarr; <strong>New deployment</strong>.</li>
+                <li>Click the gear icon (⚙️) and choose <strong>Web app</strong>.</li>
+                <li>Configure it as follows: Execute as: <strong>Me</strong>, Who has access: <strong>Anyone</strong>.</li>
+                <li>Click <strong>Deploy</strong>. Authorize the script when prompted (you may need to click "Advanced" and "Go to... (unsafe)").</li>
+                <li>After deploying, <strong>copy the Web app URL</strong>. That's what you need!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        let formConfig = {
+            title: "Your Awesome Feedback Form", description: "Let us know what you think. Your feedback is important!",
+            startScreenImages: "", timeEstimate: "Takes about 2 minutes.", googleScriptURL: '',
+            successTitle: "Thank You!", successDescription: "Your feedback helps us make things better.",
+            theme: {
+                borderColor: '#1a202c', backgroundColor: '#ffffff', primaryAccentColor: '#f4d738',
+                secondaryAccentColor: '#6b7280', backgroundImage: `url('https://images.unsplash.com/photo-1554147090-e1221a04a025?q=80&w=2070')`,
+                backgroundBlur: '8px'
+            },
+            questions: [
+                { id: 'FullName', title: 'What is your full name?', type: 'text', required: true, placeholder: 'e.g., Jane Doe' },
+                { id: 'UserEmail', title: 'What is your email address?', type: 'email', required: true, placeholder: 'example@email.com' },
+                { id: 'IsSatisfied', title: 'Are you satisfied with our service?', type: 'yes-no', required: true },
+                { id: 'Feedback', title: 'Any additional feedback for us?', type: 'long-text', required: false, placeholder: 'Type your thoughts here...' },
+            ]
+        };
+
+        const ui = {
+            startScreen: document.getElementById('generator-start-screen'), startCreatorBtn: document.getElementById('start-creator-btn'),
+            creatorWrapper: document.getElementById('creator-wrapper'), formTitle: document.getElementById('formTitle'),
+            formDescription: document.getElementById('formDescription'), startScreenImages: document.getElementById('startScreenImages'),
+            timeEstimate: document.getElementById('timeEstimate'), googleScriptURL: document.getElementById('googleScriptURL'),
+            successTitle: document.getElementById('successTitle'), successDescription: document.getElementById('successDescription'),
+            borderColor: document.getElementById('borderColor'), backgroundColor: document.getElementById('backgroundColor'),
+            primaryAccentColor: document.getElementById('primaryAccentColor'), secondaryAccentColor: document.getElementById('secondaryAccentColor'),
+            backgroundImage: document.getElementById('backgroundImage'), backgroundBlur: document.getElementById('backgroundBlur'),
+            questionsList: document.getElementById('questions-list'), addQuestionBtn: document.getElementById('add-question-btn'),
+            generateBtn: document.getElementById('generate-btn'), previewFrame: document.getElementById('preview-frame'),
+            tutorialModal: document.getElementById('tutorial-modal'), openTutorialLink: document.getElementById('open-tutorial-link'),
+            closeTutorialBtn: document.getElementById('close-tutorial-btn')
+        };
+        
+        const syncUIToState = () => {
+            Object.keys(ui).forEach(key => {
+                if (formConfig[key] !== undefined && ui[key].nodeName && !['IFRAME', 'BUTTON', 'A', 'DIV'].includes(ui[key].nodeName)) {
+                    ui[key].value = formConfig[key];
+                }
+            });
+            ui.successTitle.value = formConfig.successTitle; ui.successDescription.value = formConfig.successDescription;
+            ui.borderColor.value = formConfig.theme.borderColor; ui.backgroundColor.value = formConfig.theme.backgroundColor;
+            ui.primaryAccentColor.value = formConfig.theme.primaryAccentColor; ui.secondaryAccentColor.value = formConfig.theme.secondaryAccentColor;
+            ui.backgroundImage.value = formConfig.theme.backgroundImage.replace(/url\(['"]?(.*?)['"]?\)/, '$1');
+            ui.backgroundBlur.value = parseInt(formConfig.theme.backgroundBlur, 10);
+            renderQuestionsUI();
+        };
+
+        const syncStateToUI = () => {
+            formConfig.title = ui.formTitle.value; formConfig.description = ui.formDescription.value;
+            formConfig.startScreenImages = ui.startScreenImages.value; formConfig.timeEstimate = ui.timeEstimate.value;
+            formConfig.googleScriptURL = ui.googleScriptURL.value; formConfig.successTitle = ui.successTitle.value;
+            formConfig.successDescription = ui.successDescription.value; formConfig.theme.borderColor = ui.borderColor.value;
+            formConfig.theme.backgroundColor = ui.backgroundColor.value; formConfig.theme.primaryAccentColor = ui.primaryAccentColor.value;
+            formConfig.theme.secondaryAccentColor = ui.secondaryAccentColor.value;
+            formConfig.theme.backgroundImage = ui.backgroundImage.value ? `url('${ui.backgroundImage.value}')` : 'none';
+            formConfig.theme.backgroundBlur = `${ui.backgroundBlur.value}px`;
+            renderPreview();
+        };
+
+        const renderQuestionsUI = () => {
+            ui.questionsList.innerHTML = '';
+            formConfig.questions.forEach((q, index) => {
+                const card = document.createElement('div'); card.className = 'question-card'; card.dataset.index = index;
+                const requiresOptions = q.type === 'radio'; const requiresPlaceholder = ['text', 'long-text', 'email'].includes(q.type);
+                const optionsHTML = requiresOptions ? `<div class="control-group"><label>Options (one per line)</label><textarea class="question-options" rows="4">${q.options || ''}</textarea></div>` : '';
+                const placeholderHTML = requiresPlaceholder ? `<div class="control-group"><label>Placeholder Text</label><input type="text" class="question-placeholder" value="${q.placeholder || ''}"></div>` : '';
+                card.innerHTML = `
+                    <div class="question-card-header">
+                        <div class="handle-title">
+                            <i class="fa-solid fa-grip-vertical drag-handle"></i>
+                            <h4>${q.title || 'New Question'}</h4>
+                        </div>
+                        <div class="actions"><button class="delete-question-btn" title="Delete Question"><i class="fa-solid fa-trash"></i></button></div>
+                    </div>
+                    <div class="control-group"><label>Type</label><select class="question-type"><option value="text" ${q.type==='text'?'selected':''}>Short Text</option><option value="long-text" ${q.type==='long-text'?'selected':''}>Long Text</option><option value="email" ${q.type==='email'?'selected':''}>Email</option><option value="radio" ${q.type==='radio'?'selected':''}>Multiple Choice</option><option value="ratingScale" ${q.type==='ratingScale'?'selected':''}>Rating Scale (1-10)</option><option value="yes-no" ${q.type==='yes-no'?'selected':''}>Yes / No</option><option value="date" ${q.type==='date'?'selected':''}>Date</option></select></div>
+                    <div class="control-group"><label>Title</label><input type="text" class="question-title" value="${q.title}"></div>
+                    <div class="control-group"><label>Description (optional)</label><input type="text" class="question-description" value="${q.description || ''}"></div>
+                    <div class="control-group"><label>ID (for Google Sheet Data, no spaces)</label><input type="text" class="question-id" value="${q.id}"></div>
+                    ${placeholderHTML}${optionsHTML}
+                    <div class="control-group"><label><input type="checkbox" class="question-required" ${q.required?'checked':''}> Required</label></div>`;
+                ui.questionsList.appendChild(card);
+            });
+            document.querySelectorAll('.question-card').forEach((card, index) => {
+                const qHeaderTitle = card.querySelector('.question-card-header h4');
+                card.addEventListener('input', (e) => {
+                    const q = formConfig.questions[index]; const target = e.target;
+                    if (target.classList.contains('question-type')) { q.type = target.value; if(q.type === 'email' && !q.placeholder) q.placeholder = 'example@email.com'; }
+                    if (target.classList.contains('question-title')) { q.title = target.value; qHeaderTitle.textContent = q.title || 'New Question'; } 
+                    if (target.classList.contains('question-description')) q.description = target.value;
+                    if (target.classList.contains('question-id')) q.id = target.value.replace(/\s+/g, ''); if (target.classList.contains('question-placeholder')) q.placeholder = target.value;
+                    if (target.classList.contains('question-options')) q.options = target.value; if (target.classList.contains('question-required')) q.required = target.checked;
+                    if (target.classList.contains('question-type')) { syncStateToUI(); renderQuestionsUI(); } else { renderPreview(); }
+                });
+                card.querySelector('.delete-question-btn').addEventListener('click', () => { formConfig.questions.splice(index, 1); syncUIToState(); renderPreview(); });
+            });
+        };
+
+        const generateHTML = () => {
+            const processRadioOptions = (optionsText) => {
+                if (!optionsText) return [];
+                return optionsText.split('\n').filter(line => line.trim() !== '').map(line => ({ value: line.trim().replace(/\s+/g, '_'), text: line.trim() }));
+            };
+            const questionsForJs = formConfig.questions.map(q => {
+                const newQ = {...q};
+                if (q.type === 'radio') newQ.options = processRadioOptions(q.options);
+                else if (q.type === 'yes-no') newQ.options = [{value: 'Yes', text: 'Yes'}, {value: 'No', text: 'No'}];
+                else delete newQ.options;
+                return newQ;
+            });
+            const questionsJSON = JSON.stringify(questionsForJs, null, 4);
+            const startImagesHTML = formConfig.startScreenImages.split('\n').filter(url => url.trim()).map(url => `<img src="${url.trim()}" alt="Logo">`).join('');
+            const escape = (str) => String(str).replace(/</g, "&lt;").replace(/>/g, "&gt;");
+            return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escape(formConfig.title)}</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"><style>:root{--border-color:${formConfig.theme.borderColor};--background-color:${formConfig.theme.backgroundColor};--text-color:${formConfig.theme.borderColor};--yellow:${formConfig.theme.primaryAccentColor};--yellow-selected:${formConfig.theme.primaryAccentColor};--accent-color:${formConfig.theme.secondaryAccentColor};--background-image-url:${formConfig.theme.backgroundImage};--background-blur:${formConfig.theme.backgroundBlur};--red:#ef4444}*{box-sizing:border-box;margin:0;padding:0}html{font-size:16px}body{font-family:'Inter',sans-serif;background-color:var(--background-color);color:var(--text-color);display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;position:relative}body::before{content:'';position:absolute;inset:0;z-index:-1;background-image:var(--background-image-url);background-size:cover;background-position:center;filter:blur(var(--background-blur));transform:scale(1.1)}#progress-bar{position:fixed;top:0;left:0;width:100%;height:5px;background-color:#e5e7eb;z-index:100}#progress-bar-fill{width:0%;height:100%;background-color:var(--yellow);transition:width .4s ease-in-out}#form-container{width:100%;max-width:700px;position:relative;height:500px;padding:0 20px}#content-area{position:relative;width:100%;height:100%}.screen-wrapper{position:absolute;width:100%;height:100%;left:0;top:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;opacity:0;visibility:hidden;transform:translateY(50px);transition:opacity .4s ease-out,transform .4s ease-out}.screen-wrapper.active{opacity:1;visibility:visible;transform:translateY(0);transition-delay:.1s}.screen-wrapper.inactive-up{opacity:0;transform:translateY(-50px)}.screen-wrapper.inactive-down{opacity:0;transform:translateY(50px)}.screen-wrapper.prepare-from-top{transform:translateY(-50px)}#start-screen{text-align:center;align-items:center}.logo-container{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:20px;align-items:center}.logo-container img{max-width:100px;height:50px;object-fit:contain;opacity:.7}#start-screen h1{font-size:1.75rem;font-weight:700;margin-bottom:1rem;line-height:1.5}#start-screen h3{font-weight:400;color:#434343;margin-bottom:2rem}#start-screen .time-estimate{font-size:.85rem;color:var(--accent-color);margin-top:1.5rem}.neobrutal-button{border:3px solid var(--border-color);box-shadow:5px 5px 0 0 var(--border-color);background-color:var(--yellow);color:var(--border-color);font-weight:700;text-transform:uppercase;letter-spacing:.05em;transition:all .1s ease-out;cursor:pointer;padding:12px 28px;font-size:1rem;display:inline-flex;align-items:center;gap:10px}.neobrutal-button:hover:not(:disabled){background-color:#ffdb58;box-shadow:3px 3px 0 0 var(--border-color);transform:translate(2px,2px)}.enter-hint{margin-left:1rem;font-size:.9rem;color:var(--accent-color)}.enter-hint strong{font-family:monospace}.question-body{position:relative;width:100%}.question-number{position:absolute;left:0;top:.55rem;font-size:1.1rem;font-weight:500;color:var(--accent-color)}.question-content{padding-left:4.5rem}.question-title{font-size:1.8rem;font-weight:700;line-height:1.4;margin-bottom:2.5rem}.question-description{font-size:1.25rem;color:var(--accent-color);margin-top:-1.5rem;margin-bottom:2.5rem}.validation-error{color:var(--red);font-weight:500;margin-top:1rem;display:none}input.line-input,textarea.line-input{width:100%;border:none;background:0 0;border-bottom:3px solid var(--accent-color);font-size:1.75rem;padding:10px 0;color:var(--text-color);font-family:'Inter',sans-serif;font-weight:500;transition:border-color .3s}textarea.line-input{height:120px;resize:none}input.line-input:focus,textarea.line-input:focus{outline:0;border-bottom-color:var(--border-color)}input.line-input::placeholder,textarea.line-input::placeholder{color:#ccc}.ok-button-container{display:flex;align-items:center;margin-top:2rem}.options-container{display:flex;flex-direction:column;gap:.75rem;width:100%;max-width:500px}.options-container.yes-no-container{flex-direction:row;gap:1rem}.yes-no-container .option{flex:1;justify-content:center;padding:1.5rem 1rem;font-size:1.5rem}.yes-no-container .option .option-key{display:none}.option{display:flex;align-items:center;padding:.8rem 1rem;border:2px solid var(--border-color);box-shadow:3px 3px 0 0 var(--border-color);border-radius:4px;cursor:pointer;transition:all .2s ease;background-color:var(--background-color);font-size:1.1rem;font-weight:500}.option:hover{box-shadow:3px 3px 0 0 var(--yellow)}.option.selected{background-color:var(--yellow-selected);color:var(--background-color);border-color:var(--yellow-selected);box-shadow:3px 3px 0 0 var(--yellow-selected)}.option.selected .option-key{background-color:var(--background-color);color:var(--yellow-selected);border-color:var(--background-color)}.option-key{display:inline-flex;justify-content:center;align-items:center;width:28px;height:28px;border:2px solid var(--border-color);border-radius:4px;margin-right:1rem;font-size:.9rem;font-weight:700;background-color:var(--yellow);box-shadow:2px 2px 0 0 var(--border-color);transition:all .2s ease}.rating-scale-container{display:flex;gap:8px;flex-wrap:wrap}.rating-scale-box{width:45px;height:45px;display:flex;align-items:center;justify-content:center;border:2px solid var(--border-color);border-radius:4px;font-weight:700;cursor:pointer;transition:all .2s ease}.rating-scale-box:hover{background-color:#fef9c3;border-color:var(--yellow)}.rating-scale-box.selected{background-color:var(--yellow-selected);color:var(--background-color);border-color:var(--yellow-selected)}#nav-buttons{position:fixed;bottom:30px;right:30px;display:flex;gap:8px;z-index:50}.nav-btn{width:45px;height:45px;background-color:var(--text-color);color:#fff;border:2px solid var(--border-color);box-shadow:3px 3px 0 0 var(--border-color);border-radius:4px;cursor:pointer;font-size:1rem;transition:all .2s ease}.nav-btn:hover:not(:disabled){background-color:var(--yellow-selected);transform:translate(1px,1px);box-shadow:2px 2px 0 0 var(--border-color)}.nav-btn:disabled{background-color:#ccc;cursor:not-allowed;opacity:.7}#loading-overlay{position:fixed;inset:0;background-color:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;z-index:200}.spinner{width:50px;height:50px;border:5px solid #e0e0e0;border-top-color:var(--border-color);border-radius:50%;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}#powered-by{position:fixed;bottom:20px;left:20px;font-size:.8rem;color:var(--accent-color);z-index:50}#powered-by a{color:var(--text-color);font-weight:600;text-decoration:none;border-bottom:2px solid transparent;transition:border-color .2s}#powered-by a:hover{border-color:var(--text-color)}.hidden{display:none!important}</style></head><body><div id="progress-bar"><div id="progress-bar-fill"></div></div><div id="form-container"><div id="content-area"><div id="start-screen" class="screen-wrapper active"><h1>${escape(formConfig.title)}</h1><h3>${escape(formConfig.description)}</h3><div><button id="start-btn" class="neobrutal-button"><span>Start</span></button><span class="enter-hint">press <strong>Enter ↵</strong></span></div><p class="time-estimate"><i class="fa-regular fa-clock"></i> ${escape(formConfig.timeEstimate)}</p><div class="logo-container">${startImagesHTML}</div></div></div></div><div id="nav-buttons" class="hidden"><button class="nav-btn" id="prev-btn" title="Previous question"><i class="fas fa-arrow-up"></i></button><button class="nav-btn" id="next-btn" title="Next question"><i class="fas fa-arrow-down"></i></button></div><div id="loading-overlay" class="hidden"><div class="spinner"></div></div><div id="powered-by">Powered by <a href="https://kaheichan.neocities.org" target="_blank">Shellcraft Forms</a></div><script>document.addEventListener('DOMContentLoaded',()=>{const SCRIPT_URL='${formConfig.googleScriptURL}',questions=${questionsJSON},contentArea=document.getElementById('content-area'),progressBarFill=document.getElementById('progress-bar-fill'),prevBtn=document.getElementById('prev-btn'),nextBtn=document.getElementById('next-btn'),startBtn=document.getElementById('start-btn'),navButtons=document.getElementById('nav-buttons'),loadingOverlay=document.getElementById('loading-overlay');let currentQuestionIndex=-1;const formData={},EMAIL_REGEX=/^\\S+@\\S+\\.\\S+$/;const updateProgressBar=()=>{const e=questions.length,t=currentQuestionIndex<0?0:(currentQuestionIndex+1)/e*100;progressBarFill.style.width=\`\${t}%\`},getValidationState=()=>{const e=questions[currentQuestionIndex];if(!e)return{valid:!1};const t=formData[e.id];if(e.required&&(!t||String(t).trim().length<=0))return{valid:!1,message:"This field is required."};if("email"===e.type&&t&&!EMAIL_REGEX.test(t))return{valid:!1,message:"Please enter a valid email address."};return{valid:!0}},updateNavButtons=()=>{if(currentQuestionIndex<0)return void navButtons.classList.add('hidden');navButtons.classList.remove('hidden'),prevBtn.disabled=0===currentQuestionIndex;const{valid:e}=getValidationState();nextBtn.disabled=!e;const t=document.querySelector(\`#question-\${currentQuestionIndex} .neobrutal-ok-btn\`);t&&(t.disabled=!e)},createScreenElement=e=>{const t=questions[e],s=document.createElement('div');s.id=\`question-\${e}\`,s.className='screen-wrapper';let n='';const o=t.required?" *":"";switch(t.type){case"text":case"email":n+=\`<input type="\${"email"===t.type?"email":"text"}" id="\${t.id}" class="line-input" placeholder="\${t.placeholder||''}" value="\${formData[t.id]||''}">\`;break;case"long-text":n+=\`<textarea id="\${t.id}" class="line-input" placeholder="\${t.placeholder||''}"></textarea><span class="enter-hint"><strong>Shift + Enter</strong> for a new line</span>\`;break;case"date":n+=\`<input type="date" id="\${t.id}" class="line-input" value="\${formData[t.id]||''}">\`;break;case"radio":case"yes-no":{const e="yes-no"===t.type?"options-container yes-no-container":"options-container";let s='';t.options.forEach(e=>{const n=e.text.split('.')[0],o=e.text.includes('. ')?e.text.substring(e.text.indexOf('. ')+2):e.text,i=formData[t.id]===e.value?'selected':'';s+=\`<div class="option \${i}" data-value="\${e.value}"><span class="option-key">\${n}</span>\${o}</div>\`}),n+=\`<div class="\${e}">\${s}</div>\`}break;case"ratingScale":{let e='<div class="rating-scale-container">';for(let s=1;s<=10;s++){const n=formData[t.id]==s?'selected':'';e+=\`<div class="rating-scale-box \${n}" data-value="\${s}">\${s}</div>\`}e+='</div>',n+=e}break}['text','long-text','email','date'].includes(t.type)&&(n+='<div class="ok-button-container"><button class="neobrutal-button neobrutal-ok-btn">OK</button><span class="enter-hint">press <strong>Enter ↵</strong></span></div>'),n+='<div class="validation-error"></div>',s.innerHTML=\`<div class="question-body"><span class="question-number">\${e+1} →</span><div class="question-content"><h1 class="question-title">\${t.title}\${o}</h1>\${t.description?\`<p class="question-description">\${t.description}</p>\`:''}\${n}</div></div>\`,contentArea.appendChild(s);const i=s.querySelector('textarea.line-input');return i&&(i.value=formData[t.id]||''),s},addEventListenersToQuestion=(e,t)=>{const s=t.querySelector(".validation-error");if("radio"===e.type||"ratingScale"===e.type||"yes-no"===e.type){const n="radio"===e.type||"yes-no"===e.type?".option":".rating-scale-box";t.querySelectorAll(n).forEach(o=>{o.addEventListener('click',()=>{formData[e.id]=o.dataset.value,t.querySelectorAll(n).forEach(e=>e.classList.remove('selected')),o.classList.add('selected'),s&&(s.style.display="none"),updateNavButtons(),setTimeout(()=>navigate('next'),300)})})}else{const n=t.querySelector(".line-input"),o=t.querySelector(".neobrutal-ok-btn");o&&o.addEventListener('click',()=>navigate('next')),n&&n.addEventListener('input',()=>{formData[e.id]=n.value,s&&(s.style.display="none"),updateNavButtons()})}},navigate=e=>{const t=document.querySelector(\`#question-\${currentQuestionIndex} .validation-error\`);if("next"===e){const{valid:e,message:n}=getValidationState();if(currentQuestionIndex>=0&&!e)return t&&(t.textContent=n,t.style.display="block"),void(t.parentElement.scrollIntoView({behavior:"smooth"}));t&&(t.style.display="none")}const s=currentQuestionIndex;let n;if("next"===e){if(s>=questions.length-1)return void submitForm();n=s+1}else{if(s<=0)return;n=s-1}const o=s>=0?\`question-\${s}\`:"start-screen",i=document.getElementById(o);let a=document.getElementById(\`question-\${n}\`);a||(a=createScreenElement(n),addEventListenersToQuestion(questions[n],a)),i&&i.classList.remove('active',i.classList.add("next"===e?"inactive-up":"inactive-down")),a&&(a.classList.remove('inactive-up','inactive-down'),"prev"===e&&a.classList.add('prepare-from-top'),setTimeout(()=>{a.classList.remove('prepare-from-top'),a.classList.add('active');const e=a.querySelector('.line-input');e&&setTimeout(()=>e.focus(),400)},20)),currentQuestionIndex=n,updateProgressBar(),updateNavButtons()},submitForm=async()=>{loadingOverlay.classList.remove('hidden');const e=new FormData;Object.keys(formData).forEach(t=>e.append(t,formData[t]||''));const t=new Date,s=\`\${t.getFullYear()}-\${String(t.getMonth()+1).padStart(2,'0')}-\${String(t.getDate()).padStart(2,'0')} \${String(t.getHours()).padStart(2,'0')}:\${String(t.getMinutes()).padStart(2,'0')}:\${String(t.getSeconds()).padStart(2,'0')}\`;e.append('Timestamp',s);let n;try{await fetch(SCRIPT_URL,{method:'POST',body:e}),n=\`<h1 class="question-title" style="text-align:center;">\${"${escape(formConfig.successTitle)}"}</h1><p class="question-description" style="text-align:center;">\${"${escape(formConfig.successDescription)}"}</p>\`}catch(e){console.error('Form submission error:',e),n='<h1 class="question-title" style="text-align:center; color: #ef4444;">Oops!</h1><p class="question-description" style="text-align:center;">Something went wrong. Please try again.</p>'}finally{loadingOverlay.classList.add('hidden'),navButtons.classList.add('hidden'),progressBarFill.style.width='100%';const e=document.querySelector('.screen-wrapper.active');e&&e.classList.add('inactive-up');let t=document.getElementById('final-screen');t||(t=document.createElement('div'),t.id='final-screen',t.className='screen-wrapper',t.style.alignItems='center',contentArea.appendChild(t)),t.innerHTML=n,setTimeout(()=>t.classList.add('active'),100)}};startBtn.addEventListener('click',()=>navigate('next')),nextBtn.addEventListener('click',()=>navigate('next')),prevBtn.addEventListener('click',()=>navigate('prev')),document.addEventListener('keydown',e=>{const t=document.activeElement,s=t&&('INPUT'===t.tagName||'TEXTAREA'===t.tagName);if('Enter'===e.key&&!e.shiftKey){if(!s||"TEXTAREA"!==t.tagName)if(e.preventDefault(),-1===currentQuestionIndex)startBtn.click();else{const e=document.querySelector('.screen-wrapper.active .neobrutal-ok-btn');e&&!e.disabled?e.click():navigate('next')}}s||('ArrowDown'===e.key||'ArrowRight'===e.key)&&(e.preventDefault(),nextBtn.click()),('ArrowUp'===e.key||'ArrowLeft'===e.key)&&(e.preventDefault(),prevBtn.click())}),updateProgressBar(),updateNavButtons()});<\/script></body></html>`;
+        };
+        
+        const renderPreview = () => { ui.previewFrame.srcdoc = generateHTML(); };
+        const downloadHTML = () => {
+            const html = generateHTML(); const blob = new Blob([html], { type: 'text/html' }); const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob); a.download = 'shellcraft-form.html';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(a.href);
+        };
+
+        const initAccordion = () => {
+            const accordionHeaders = document.querySelectorAll('.accordion-header');
+            accordionHeaders.forEach(header => {
+                header.addEventListener('click', function() {
+                    const panel = this.nextElementSibling;
+                    const isActive = this.classList.contains('active');
+                    if (isActive) {
+                        this.classList.remove('active');
+                        panel.style.maxHeight = null;
+                    } else {
+                        this.classList.add('active');
+                        panel.style.maxHeight = panel.scrollHeight + "px";
+                    }
+                });
+            });
+
+        };
+        
+        // --- EVENT LISTENERS ---
+        ui.startCreatorBtn.addEventListener('click', () => { ui.startScreen.style.display = 'none'; ui.creatorWrapper.classList.remove('hidden'); });
+        document.getElementById('generator-ui').addEventListener('input', syncStateToUI);
+        ui.addQuestionBtn.addEventListener('click', () => { 
+            formConfig.questions.push({ id: `Question${formConfig.questions.length + 1}`, title: 'New Question', type: 'text', required: false }); 
+            renderQuestionsUI(); renderPreview(); 
+            // Re-open accordion if it was open
+            const questionsHeader = document.getElementById('questions-accordion-header');
+            const panel = questionsHeader.nextElementSibling;
+            if (questionsHeader.classList.contains('active')) {
+                panel.style.maxHeight = panel.scrollHeight + "px";
+            }
+        });
+        ui.generateBtn.addEventListener('click', downloadHTML);
+        ui.openTutorialLink.addEventListener('click', (e) => { e.preventDefault(); ui.tutorialModal.classList.add('active'); });
+        ui.closeTutorialBtn.addEventListener('click', () => ui.tutorialModal.classList.remove('active'));
+        ui.tutorialModal.addEventListener('click', (e) => { if (e.target === ui.tutorialModal) ui.tutorialModal.classList.remove('active'); });
+        
+        // --- INITIALIZATION ---
+        syncUIToState(); 
+        renderPreview();
+        initAccordion();
+        new Sortable(ui.questionsList, { animation: 150, handle: '.question-card-header', onEnd: (evt) => { const [movedItem] = formConfig.questions.splice(evt.oldIndex, 1); formConfig.questions.splice(evt.newIndex, 0, movedItem); renderQuestionsUI(); renderPreview(); } });
+    });
+    </script>
+</body>
+</html>
