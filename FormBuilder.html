@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shellcraft Forms Creator</title>
     <link rel="icon" href="https://kaheichan.neocities.org/images/Shellcraft.png">
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet">
-    <!-- Font Awesome for Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <!-- SortableJS for drag-and-drop -->
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
@@ -62,9 +60,10 @@
         }
         .creator-actions button:hover { background-color: var(--shell-gray); }
 
-        /* Accordion Styles */
-        #accordion-container { display: flex; flex-direction: column; gap: 1.25rem; }
-        .accordion-item {
+        /* Accordion & Static Section Styles */
+        .accordion-container, #questions-section { display: flex; flex-direction: column; gap: 1.25rem; }
+        
+        .accordion-item, .static-section {
             background-color: var(--shell-bg); border: 3px solid var(--shell-border);
             border-radius: 4px; box-shadow: 5px 5px 0 0 var(--shell-border); overflow: hidden;
         }
@@ -73,12 +72,19 @@
             display: flex; align-items: center; justify-content: space-between;
             padding: 1rem 1.5rem; cursor: pointer; text-align: left; transition: border-color 0.2s;
         }
-        .accordion-header h2 { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
+        .section-header {
+            border-bottom: 3px solid var(--shell-gray);
+            padding: 1rem 1.5rem;
+        }
+        .accordion-header h2, .section-header h2 { font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; margin: 0; }
         .accordion-icon { transition: transform 0.3s ease-out; font-size: 1rem; }
         .accordion-header.active .accordion-icon { transform: rotate(180deg); }
         .accordion-header.active { border-bottom-color: var(--shell-gray); }
         .accordion-panel { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
-        .accordion-content { padding: 0 1.5rem 1.5rem 1.5rem; }
+        .section-content, .accordion-content { padding: 1.5rem; }
+        .accordion-content { padding-top: 0; }
+        .section-content { padding-top: 1.5rem; }
+
 
         .control-group { margin-bottom: 1.25rem; }
         .control-group label { display: block; font-weight: 700; margin-bottom: 0.5rem; font-size: 0.9rem; }
@@ -129,7 +135,7 @@
         }
         #preview-overlay {
             position: absolute; top: 2rem; left: 2rem; right: 2rem; bottom: 2rem;
-            background: rgba(26, 32, 44, 0.5); backdrop-filter: blur(2px);
+            background: rgba(26, 32, 44, 0.5); backdrop-filter: blur(0.3px);
             z-index: 10; color: white; display: flex; flex-direction: column;
             align-items: center; justify-content: center; text-align: center;
             border-radius: 4px; cursor: pointer; transition: opacity 0.3s ease;
@@ -186,15 +192,15 @@
                 </div>
             </header>
             
-            <div id="accordion-container">
+            <div class="accordion-container">
                 <div class="accordion-item">
                     <button class="accordion-header"><h2>General Settings</h2><i class="fa-solid fa-chevron-down accordion-icon"></i></button>
                     <div class="accordion-panel"><div class="accordion-content">
-                        <div class="control-group"><label for="formTitle">Form Title</label><input type="text" id="formTitle"></div>
-                        <div class="control-group"><label for="formDescription">Form Description</label><textarea id="formDescription" rows="3"></textarea></div>
+                        <div class="control-group"><label for="formTitle">Form Title</label><input type="text" id="formTitle" placeholder="My Awesome Form"></div>
+                        <div class="control-group"><label for="formDescription">Form Description</label><textarea id="formDescription" rows="3" placeholder="A short description about what this form is for."></textarea></div>
                         <div class="control-group"><label for="faviconUrl">Favicon URL (Optional)</label><input type="url" id="faviconUrl" placeholder="https://.../favicon.png"></div>
                         <div class="control-group"><label for="startScreenImages">Start Page Image URLs (one per line)</label><textarea id="startScreenImages" rows="3" placeholder="https://.../logo1.png&#10;https://.../logo2.png"></textarea></div>
-                        <div class="control-group"><label for="timeEstimate">Time Estimate Text</label><input type="text" id="timeEstimate"></div>
+                        <div class="control-group"><label for="timeEstimate">Time Estimate Text</label><input type="text" id="timeEstimate" placeholder="Takes about 2 minutes"></div>
                         <div class="control-group"><label for="googleScriptURL">Google Script Web App URL</label><input type="url" id="googleScriptURL" placeholder="Paste your deployed web app URL here"><small>Need one? <a href="#" id="open-tutorial-link">How do I get this?</a></small></div>
                     </div></div>
                 </div>
@@ -202,8 +208,8 @@
                 <div class="accordion-item">
                     <button class="accordion-header"><h2>End Screen</h2><i class="fa-solid fa-chevron-down accordion-icon"></i></button>
                     <div class="accordion-panel"><div class="accordion-content">
-                        <div class="control-group"><label for="successTitle">Success Title</label><input type="text" id="successTitle"></div>
-                        <div class="control-group"><label for="successDescription">Success Description</label><textarea id="successDescription" rows="2"></textarea></div>
+                        <div class="control-group"><label for="successTitle">Success Title</label><input type="text" id="successTitle" placeholder="Thank You!"></div>
+                        <div class="control-group"><label for="successDescription">Success Description</label><textarea id="successDescription" rows="2" placeholder="Your submission has been received."></textarea></div>
                     </div></div>
                 </div>
 
@@ -222,20 +228,22 @@
                 </div>
                 
                 <div class="accordion-item">
-                    <button class="accordion-header"><h2>Import Questions (JSON)</h2><i class="fa-solid fa-chevron-down accordion-icon"></i></button>
+                    <button class="accordion-header"><h2>Generate with AI</h2><i class="fa-solid fa-chevron-down accordion-icon"></i></button>
                     <div class="accordion-panel"><div class="accordion-content">
-                        <p style="font-size: 0.9rem; margin-top: 0;">Quickly add questions by pasting them here in JSON format. <a href="#" id="open-json-help-link">How do I format this?</a></p>
-                        <div class="control-group"><label for="json-import-text">Paste your questions JSON here</label><textarea id="json-import-text" rows="8"></textarea></div>
-                        <button id="json-import-btn" class="neobrutal-button" style="background-color: var(--shell-bg);"><i class="fa-solid fa-file-import"></i> Import JSON</button>
+                        <p style="font-size: 0.9rem; margin-top: 0;">Use an external AI to generate your form structure, then paste the resulting JSON code here. <a href="#" id="open-json-help-link">How do I do this?</a></p>
+                        <div class="control-group"><label for="json-import-text">Paste your AI-generated JSON here</label><textarea id="json-import-text" rows="8" placeholder='[ { "id": "yourName", "title": "What is your name?", ... } ]'></textarea></div>
+                        <button id="json-import-btn" class="neobrutal-button" style="background-color: var(--shell-bg);"><i class="fa-solid fa-wand-magic-sparkles"></i> Import from AI</button>
                     </div></div>
                 </div>
-
-                <div class="accordion-item">
-                    <button class="accordion-header" id="questions-accordion-header"><h2>Questions</h2><i class="fa-solid fa-chevron-down accordion-icon"></i></button>
-                    <div class="accordion-panel"><div class="accordion-content">
-                        <div id="questions-list"></div>
-                        <button id="add-question-btn" class="neobrutal-button" style="background-color: var(--shell-bg);"><i class="fa-solid fa-plus"></i> Add Question</button>
-                    </div></div>
+            </div>
+<br>
+            <div id="questions-section" class="static-section">
+                <div class="section-header">
+                    <h2>Questions</h2>
+                </div>
+                <div class="section-content">
+                    <div id="questions-list"></div>
+                    <button id="add-question-btn" class="neobrutal-button" style="background-color: var(--shell-bg);"><i class="fa-solid fa-plus"></i> Add Question</button>
                 </div>
             </div>
 
@@ -258,18 +266,78 @@
         <div class="modal-content">
             <button class="close-modal-btn modal-close-btn">&times;</button>
             <h3>How to Get Your Google Script URL</h3>
-            <p>Follow these steps to create a smart backend that will collect your form responses in a Google Sheet.</p>
+            <p>This script will collect your form responses in a Google Sheet. It also supports file uploads directly to a folder in your Google Drive.</p>
             <ol>
-                <li>Go to <a href="https://sheets.google.com/create" target="_blank">sheets.google.com/create</a> to create a new spreadsheet.</li>
-                <li><span class="highlight"><strong>Important:</strong></span> In cell <strong>A1</strong>, type a header name, like "Timestamp". This helps the script work correctly.</li>
+                <li>Go to <a href="https://sheets.google.com/create" target="_blank">sheets.google.com/create</a> to create a new spreadsheet. Name it something memorable.</li>
+                <li>In cell <strong>A1</strong>, type a header named `Timestamp`.</li>
                 <li>Go to <strong>Extensions</strong> &rarr; <strong>Apps Script</strong>.</li>
                 <li>Delete any placeholder code and paste the following script:
-                    <code>function doPost(e) { try { var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet(); var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0]; var newRow = new Array(headers.length).fill(''); var headerMap = {}; headers.forEach(function(header, i) { headerMap[header] = i; }); for (var key in e.parameter) { if (headerMap.hasOwnProperty(key)) { newRow[headerMap[key]] = e.parameter[key]; } else { var newHeaderIndex = headers.length; sheet.getRange(1, newHeaderIndex + 1).setValue(key); headers.push(key); headerMap[key] = newHeaderIndex; while(newRow.length < headers.length) { newRow.push(''); } newRow[newHeaderIndex] = e.parameter[key]; } } sheet.appendRow(newRow); return ContentService.createTextOutput(JSON.stringify({ "result": "success" })).setMimeType(ContentService.MimeType.JSON); } catch (error) { return ContentService.createTextOutput(JSON.stringify({ "result": "error", "error": error.toString() })).setMimeType(ContentService.MimeType.JSON); } }</code>
+                    <code>function doPost(e) {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+    var data = JSON.parse(e.postData.contents);
+    var formName = data.formName || "Shellcraft Form Submissions";
+
+    // --- File Upload Handling ---
+    if (data.fileData) {
+      var folder;
+      var folders = DriveApp.getFoldersByName(formName);
+      if (folders.hasNext()) {
+        folder = folders.next();
+      } else {
+        folder = DriveApp.createFolder(formName);
+        folder.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW); 
+      }
+      
+      var contentType = data.fileType;
+      var decodedData = Utilities.base64Decode(data.fileData.split(',')[1]);
+      var blob = Utilities.newBlob(decodedData, contentType, data.fileName);
+      var file = folder.createFile(blob);
+      data[data.fileQuestionId] = file.getUrl(); // Add file URL to data object
+      
+      // Clean up file data to avoid writing it to the sheet
+      delete data.fileData;
+      delete data.fileName;
+      delete data.fileType;
+      delete data.fileQuestionId;
+    }
+    
+    // --- Write Data to Sheet ---
+    var headers = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getValues()[0];
+    var headerMap = {};
+    headers.forEach(function(header, i) {
+      if (header !== "") {
+        headerMap[header] = i;
+      }
+    });
+
+    var newRow = new Array(headers.length).fill('');
+    for (var key in data) {
+      if (headerMap.hasOwnProperty(key)) {
+        newRow[headerMap[key]] = data[key];
+      } else {
+        // Add new header if it doesn't exist
+        var newHeaderIndex = headers.length;
+        sheet.getRange(1, newHeaderIndex + 1).setValue(key);
+        headers.push(key);
+        headerMap[key] = newHeaderIndex;
+        while(newRow.length < headers.length) { newRow.push(''); }
+        newRow[newHeaderIndex] = data[key];
+      }
+    }
+    
+    sheet.appendRow(newRow);
+    
+    return ContentService.createTextOutput(JSON.stringify({ "result": "success" })).setMimeType(ContentService.MimeType.JSON);
+  } catch (error) {
+    return ContentService.createTextOutput(JSON.stringify({ "result": "error", "error": error.toString() })).setMimeType(ContentService.MimeType.JSON);
+  }
+}</code>
                 </li>
                 <li>Save the project (floppy disk icon).</li>
                 <li>Click <strong>Deploy</strong> &rarr; <strong>New deployment</strong>.</li>
                 <li>Click the gear icon (⚙️) and choose <strong>Web app</strong>. Configure it as: Execute as: <strong>Me</strong>, Who has access: <strong>Anyone</strong>.</li>
-                <li>Click <strong>Deploy</strong>. Authorize the script when prompted.</li>
+                <li>Click <strong>Deploy</strong>. Authorize the script when prompted. You may need to click advanced -> unsafe -> authorise</li>
                 <li>After deploying, <strong>copy the Web app URL</strong>. That's what you need!</li>
             </ol>
         </div>
@@ -278,19 +346,32 @@
     <div id="json-help-modal" class="modal-overlay">
         <div class="modal-content">
              <button class="close-modal-btn modal-close-btn">&times;</button>
-             <h3>How to Format Questions as JSON</h3>
-             <p>You can use an external AI (like ChatGPT, Gemini, etc.) to quickly generate the correct JSON format from a simple list of questions.</p>
+             <h3>How to Use an AI to Generate Your Form</h3>
+             <p>You can use an external AI (like ChatGPT, Gemini, etc.) to quickly generate the correct JSON format from a simple list of questions or a description.</p>
              <ol>
                  <li>Copy the prompt below and paste it into your AI of choice.</li>
-                 <li>Append your list of questions to the end of the prompt.</li>
+                 <li>Append your list of questions or a description of the form you want to build.</li>
                  <li>The AI will generate a block of JSON code. Copy that code.</li>
-                 <li>Paste the JSON code into the "Import Questions" box in the creator and click import.</li>
+                 <li>Paste the JSON code into the "Generate with AI" box in the creator and click the import button.</li>
              </ol>
              <strong>Prompt to Copy:</strong>
-             <code>Parse the following text into a JSON array of form questions. Each object must have "id", "title", "type", and "required". The 'type' can be 'text', 'long-text', 'email', 'radio', 'ratingScale', 'yes-no', or 'date'. For 'radio' types, include an "options" property with the choices as a single string separated by newlines. Infer the type where possible (e.g., an email question should be 'email'). Make the 'id' a camelCase version of the title with no spaces. Assume all questions are required unless specified otherwise. Output ONLY the raw JSON array, nothing else.
+             <code>Parse the following text into a JSON object representing a complete form configuration. The object can have top-level keys like "title", "description", "timeEstimate", "successTitle", and "successDescription". It MUST have a "questions" key containing an array of question objects.
 
-Here are the questions:
-[PASTE YOUR QUESTIONS HERE]</code>
+Each question object in the array must have "id", "title", "type", and "required" (boolean).
+- "id" should be a unique camelCase version of the title.
+- "type" can be 'text', 'long-text', 'email', 'radio', 'checkbox', 'dropdown', 'ratingScale', 'yes-no', 'datetime', or 'file-upload'. Note: Use 'radio' for single choice and 'checkbox' for multi-choice. Use 'datetime' for date/time questions.
+- For 'datetime' questions, you can add "datetimeFormat" which can be 'datetime-local', 'date', or 'time'. Default is 'datetime-local'.
+- For 'yes-no' questions, you can add "positiveText" (e.g. "Agree") and "negativeText" (e.g. "Disagree").
+- For types 'radio', 'checkbox', and 'dropdown', include an "options" property with the choices as a single string separated by newlines.
+- For types 'text', 'long-text', and 'email', you can optionally add a "placeholder" string.
+- For types 'radio' and 'checkbox', you can optionally add "numberingStyle" which can be 'abc' or '123'. Default to 'abc'.
+- Optionally add a "description" string to any question for more context.
+- Assume all questions are required unless specified otherwise.
+
+Output ONLY the raw JSON object, nothing else.
+
+Here is the form I want:
+[PASTE YOUR QUESTIONS OR DESCRIPTION HERE]</code>
         </div>
     </div>
 
@@ -298,21 +379,15 @@ Here are the questions:
     <script>
     document.addEventListener('DOMContentLoaded', () => {
         let formConfig = {
-            title: "Your Awesome Feedback Form", description: "Let us know what you think. Your feedback is important!",
-            faviconUrl: "", startScreenImages: "", timeEstimate: "Takes about 2 minutes.", googleScriptURL: '',
-            successTitle: "Thank You!", successDescription: "Your feedback helps us make things better.",
+            title: "", description: "",
+            faviconUrl: "", startScreenImages: "", timeEstimate: "", googleScriptURL: '',
+            successTitle: "Thank You!", successDescription: "Your submission has been received.",
             theme: {
                 borderColor: '#1a202c', backgroundColor: '#ffffff', primaryAccentColor: '#f4d738',
-                secondaryAccentColor: '#6b7280', backgroundImage: `url('https://images.unsplash.com/photo-1554147090-e1221a04a025?q=80&w=2070')`,
+                secondaryAccentColor: '#6b7280', backgroundImage: `url('')`,
                 backgroundBlur: '8px'
             },
-            questions: [
-                { id: 'FullName', title: 'What is your full name?', type: 'text', required: true, placeholder: 'e.g., Jane Doe' },
-                { id: 'UserEmail', title: 'What is your email address?', type: 'email', required: true, placeholder: 'example@email.com' },
-                { id: 'IsSatisfied', title: 'Are you satisfied with our service?', type: 'yes-no', required: true },
-                { id: 'FavoriteFeature', title: 'What is your favorite feature?', type: 'radio', required: true, options: "Speed\nDesign\nCustomer Support", numberingStyle: 'abc' },
-                { id: 'Feedback', title: 'Any additional feedback for us?', type: 'long-text', required: false, placeholder: 'Type your thoughts here...' },
-            ]
+            questions: []
         };
 
         const ui = {
@@ -331,15 +406,10 @@ Here are the questions:
             importBtn: document.getElementById('import-btn'), importFileInput: document.getElementById('import-file-input'),
             generatorUI: document.getElementById('generator-ui'), previewOverlay: document.getElementById('preview-overlay'),
             jsonImportText: document.getElementById('json-import-text'), jsonImportBtn: document.getElementById('json-import-btn'),
-            jsonHelpModal: document.getElementById('json-help-modal'), openJsonHelpLink: document.getElementById('open-json-help-link')
+            jsonHelpModal: document.getElementById('json-help-modal'), openJsonHelpLink: document.getElementById('open-json-help-link'),
         };
         
         const syncUIToState = () => {
-            Object.keys(ui).forEach(key => {
-                if (formConfig[key] !== undefined && ui[key] && ui[key].nodeName && !['IFRAME', 'BUTTON', 'A', 'DIV', 'TEXTAREA'].includes(ui[key].nodeName)) {
-                    ui[key].value = formConfig[key];
-                }
-            });
             ui.formTitle.value = formConfig.title; ui.formDescription.value = formConfig.description; ui.faviconUrl.value = formConfig.faviconUrl;
             ui.startScreenImages.value = formConfig.startScreenImages; ui.timeEstimate.value = formConfig.timeEstimate; ui.googleScriptURL.value = formConfig.googleScriptURL;
             ui.successTitle.value = formConfig.successTitle; ui.successDescription.value = formConfig.successDescription;
@@ -347,7 +417,7 @@ Here are the questions:
             ui.borderColor.value = formConfig.theme.borderColor; ui.backgroundColor.value = formConfig.theme.backgroundColor;
             ui.primaryAccentColor.value = formConfig.theme.primaryAccentColor; ui.secondaryAccentColor.value = formConfig.theme.secondaryAccentColor;
             ui.backgroundImage.value = formConfig.theme.backgroundImage.replace(/url\(['"]?(.*?)['"]?\)/, '$1');
-            ui.backgroundBlur.value = parseInt(formConfig.theme.backgroundBlur, 10);
+            ui.backgroundBlur.value = parseInt(formConfig.theme.backgroundBlur, 10) || 8;
             renderQuestionsUI();
         };
 
@@ -367,23 +437,49 @@ Here are the questions:
             ui.questionsList.innerHTML = '';
             formConfig.questions.forEach((q, index) => {
                 const card = document.createElement('div'); card.className = 'question-card'; card.dataset.index = index;
-                const requiresOptions = q.type === 'radio'; const requiresPlaceholder = ['text', 'long-text', 'email'].includes(q.type);
+                const requiresOptions = ['radio', 'checkbox', 'dropdown'].includes(q.type);
+                const requiresPlaceholder = ['text', 'long-text', 'email'].includes(q.type);
+                const isDateTime = q.type === 'datetime';
+                const isYesNo = q.type === 'yes-no';
+                const requiresNumbering = ['radio', 'checkbox'].includes(q.type);
+
                 const placeholderHTML = requiresPlaceholder ? `<div class="control-group"><label>Placeholder Text</label><input type="text" class="question-placeholder" value="${q.placeholder || ''}"></div>` : '';
-                const optionsHTML = requiresOptions ? `
-                    <div class="control-group"><label>Options (one per line)</label><textarea class="question-options" rows="4">${q.options || ''}</textarea></div>
+                const optionsHTML = requiresOptions ? `<div class="control-group"><label>Options (one per line)</label><textarea class="question-options" rows="4">${q.options || ''}</textarea></div>` : '';
+                const numberingHTML = requiresNumbering ? `
                     <div class="control-group"><label>Numbering Style</label><select class="question-numbering-style">
-                        <option value="none" ${q.numberingStyle === 'none' || !q.numberingStyle ? 'selected' : ''}>None</option>
                         <option value="abc" ${q.numberingStyle === 'abc' ? 'selected' : ''}>A, B, C...</option>
                         <option value="123" ${q.numberingStyle === '123' ? 'selected' : ''}>1, 2, 3...</option>
                     </select></div>` : '';
+                const dateTimeFormatHTML = isDateTime ? `
+                    <div class="control-group"><label>Format</label><select class="question-datetime-format">
+                        <option value="datetime-local" ${q.datetimeFormat === 'datetime-local' || !q.datetimeFormat ? 'selected' : ''}>Date & Time</option>
+                        <option value="date" ${q.datetimeFormat === 'date' ? 'selected' : ''}>Date Only</option>
+                        <option value="time" ${q.datetimeFormat === 'time' ? 'selected' : ''}>Time Only</option>
+                    </select></div>` : '';
+                const yesNoOptionsHTML = isYesNo ? `
+                    <div class="control-group"><label>Positive Option Text</label><input type="text" class="question-positive-text" value="${q.positiveText || 'Yes'}"></div>
+                    <div class="control-group"><label>Negative Option Text</label><input type="text" class="question-negative-text" value="${q.negativeText || 'No'}"></div>
+                ` : '';
+
 
                 card.innerHTML = `
                     <div class="question-card-header"><div class="handle-title"><i class="fa-solid fa-grip-vertical drag-handle"></i><h4>${q.title || 'New Question'}</h4></div><div class="actions"><button class="delete-question-btn" title="Delete Question"><i class="fa-solid fa-trash"></i></button></div></div>
-                    <div class="control-group"><label>Type</label><select class="question-type"><option value="text" ${q.type==='text'?'selected':''}>Short Text</option><option value="long-text" ${q.type==='long-text'?'selected':''}>Long Text</option><option value="email" ${q.type==='email'?'selected':''}>Email</option><option value="radio" ${q.type==='radio'?'selected':''}>Multiple Choice</option><option value="ratingScale" ${q.type==='ratingScale'?'selected':''}>Rating Scale (1-10)</option><option value="yes-no" ${q.type==='yes-no'?'selected':''}>Yes / No</option><option value="date" ${q.type==='date'?'selected':''}>Date</option></select></div>
+                    <div class="control-group"><label>Type</label><select class="question-type">
+                        <option value="text" ${q.type==='text'?'selected':''}>Short Text</option>
+                        <option value="long-text" ${q.type==='long-text'?'selected':''}>Long Text</option>
+                        <option value="email" ${q.type==='email'?'selected':''}>Email</option>
+                        <option value="radio" ${q.type==='radio'?'selected':''}>Single Choice</option>
+                        <option value="checkbox" ${q.type==='checkbox'?'selected':''}>Multi Choice</option>
+                        <option value="dropdown" ${q.type==='dropdown'?'selected':''}>Dropdown</option>
+                        <option value="ratingScale" ${q.type==='ratingScale'?'selected':''}>Rating Scale (1-10)</option>
+                        <option value="yes-no" ${q.type==='yes-no'?'selected':''}>Yes / No</option>
+                        <option value="datetime" ${q.type==='datetime'?'selected':''}>Date & Time</option>
+                        <option value="file-upload" ${q.type==='file-upload'?'selected':''}>File Upload</option>
+                    </select></div>
                     <div class="control-group"><label>Title</label><input type="text" class="question-title" value="${q.title}"></div>
                     <div class="control-group"><label>Description (optional)</label><input type="text" class="question-description" value="${q.description || ''}"></div>
                     <div class="control-group"><label>ID (for Google Sheet Data, no spaces)</label><input type="text" class="question-id" value="${q.id}"></div>
-                    ${placeholderHTML}${optionsHTML}
+                    ${placeholderHTML}${optionsHTML}${numberingHTML}${dateTimeFormatHTML}${yesNoOptionsHTML}
                     <div class="control-group"><label><input type="checkbox" class="question-required" ${q.required?'checked':''}> Required</label></div>`;
                 ui.questionsList.appendChild(card);
             });
@@ -391,34 +487,41 @@ Here are the questions:
                 const qHeaderTitle = card.querySelector('.question-card-header h4');
                 card.addEventListener('input', (e) => {
                     const q = formConfig.questions[index]; const target = e.target;
-                    if (target.classList.contains('question-type')) { q.type = target.value; if(q.type === 'email' && !q.placeholder) q.placeholder = 'example@email.com'; }
+                    if (target.classList.contains('question-type')) { q.type = target.value; if(q.type === 'email' && !q.placeholder) q.placeholder = 'example@email.com'; if(['radio', 'checkbox'].includes(q.type) && !q.numberingStyle) q.numberingStyle = 'abc';}
                     if (target.classList.contains('question-title')) { q.title = target.value; qHeaderTitle.textContent = q.title || 'New Question'; } 
                     if (target.classList.contains('question-description')) q.description = target.value;
                     if (target.classList.contains('question-id')) q.id = target.value.replace(/\s+/g, ''); if (target.classList.contains('question-placeholder')) q.placeholder = target.value;
                     if (target.classList.contains('question-options')) q.options = target.value; if (target.classList.contains('question-numbering-style')) q.numberingStyle = target.value;
                     if (target.classList.contains('question-required')) q.required = target.checked;
+                    if (target.classList.contains('question-datetime-format')) q.datetimeFormat = target.value;
+                    if (target.classList.contains('question-positive-text')) q.positiveText = target.value;
+                    if (target.classList.contains('question-negative-text')) q.negativeText = target.value;
                     if (target.classList.contains('question-type')) { syncStateToUI(); renderQuestionsUI(); } else { renderPreview(); }
                 });
                 card.addEventListener('click', () => { ui.previewFrame.contentWindow.postMessage({ action: 'jumpTo', index }, '*'); });
-                card.querySelector('.delete-question-btn').addEventListener('click', () => { formConfig.questions.splice(index, 1); syncUIToState(); renderPreview(); });
+                card.querySelector('.delete-question-btn').addEventListener('click', () => { 
+                    formConfig.questions.splice(index, 1); 
+                    syncUIToState(); 
+                    renderPreview();
+                });
             });
         };
 
         const generateHTML = () => {
-            const processRadioOptions = (q) => {
+            const processOptions = (q) => {
                 if (!q.options) return [];
                 const lines = q.options.split('\n').filter(line => line.trim() !== '');
                 return lines.map((line, index) => {
                     let prefix = '';
                     if (q.numberingStyle === 'abc') prefix = `${String.fromCharCode(65 + index)}. `;
                     else if (q.numberingStyle === '123') prefix = `${index + 1}. `;
-                    return { value: line.trim().replace(/\s+/g, '_'), text: prefix + line.trim() };
+                    return { value: line.trim(), text: prefix + line.trim() };
                 });
             };
             const questionsForJs = formConfig.questions.map(q => {
                 const newQ = {...q};
-                if (q.type === 'radio') newQ.options = processRadioOptions(q);
-                else if (q.type === 'yes-no') newQ.options = [{value: 'Yes', text: 'Yes'}, {value: 'No', text: 'No'}];
+                if (['radio', 'checkbox', 'dropdown'].includes(q.type)) newQ.options = processOptions(q);
+                else if (q.type === 'yes-no') newQ.options = [{value: q.positiveText || 'Yes', text: q.positiveText || 'Yes'}, {value: q.negativeText || 'No', text: q.negativeText || 'No'}];
                 else delete newQ.options;
                 return newQ;
             });
@@ -428,7 +531,8 @@ Here are the questions:
             const escape = (str) => String(str).replace(/</g, "&lt;").replace(/>/g, "&gt;");
             const configComment = `<!-- SHELLCRAFT_CONFIG_START ${JSON.stringify(formConfig)} SHELLCRAFT_CONFIG_END -->`;
             
-            return `${configComment}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escape(formConfig.title)}</title>${faviconLink}<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"><style>:root{--border-color:${formConfig.theme.borderColor};--background-color:${formConfig.theme.backgroundColor};--text-color:${formConfig.theme.borderColor};--yellow:${formConfig.theme.primaryAccentColor};--yellow-selected:${formConfig.theme.primaryAccentColor};--accent-color:${formConfig.theme.secondaryAccentColor};--background-image-url:${formConfig.theme.backgroundImage};--background-blur:${formConfig.theme.backgroundBlur};--red:#ef4444}*{box-sizing:border-box;margin:0;padding:0}html{font-size:16px}body{font-family:'Inter',sans-serif;background-color:var(--background-color);color:var(--text-color);display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;position:relative}body::before{content:'';position:absolute;inset:0;z-index:-1;background-image:var(--background-image-url);background-size:cover;background-position:center;filter:blur(var(--background-blur));transform:scale(1.1)}#preloader{position:fixed;inset:0;z-index:3000;background-color:var(--background-color);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s ease-out}#preloader.fade-out{opacity:0}#preloader-bar{width:250px;height:4px;background-color:#e5e7eb;border-radius:2px;overflow:hidden}#preloader-bar-fill{width:100%;height:100%;background-color:var(--border-color);animation:preload-anim 1.5s ease-out forwards}#preloader-text{font-size:.9rem;color:var(--accent-color);margin-bottom:1.25rem}#preloader-text a{font-weight:800;color:var(--text-color);text-decoration:none;border-bottom:3px solid var(--yellow)}@keyframes preload-anim{0%{transform:translateX(-100%)}100%{transform:translateX(0)}}#progress-bar{position:fixed;top:0;left:0;width:100%;height:5px;background-color:#e5e7eb;z-index:100}#progress-bar-fill{width:0%;height:100%;background-color:var(--yellow);transition:width .4s ease-in-out}#form-container{width:100%;max-width:700px;position:relative;height:500px;padding:0 20px}.screen-wrapper{position:absolute;width:100%;height:100%;left:0;top:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;opacity:0;visibility:hidden;transform:translateY(50px);transition:opacity .4s ease-out,transform .4s ease-out}.screen-wrapper.active{opacity:1;visibility:visible;transform:translateY(0);transition-delay:.1s}.screen-wrapper.inactive-up{opacity:0;transform:translateY(-50px)}.screen-wrapper.inactive-down{opacity:0;transform:translateY(50px)}.screen-wrapper.prepare-from-top{transform:translateY(-50px)}#start-screen{text-align:center;align-items:center}.logo-container{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:20px;align-items:center}.logo-container img{max-width:100px;height:50px;object-fit:contain;opacity:.7}#start-screen h1{font-size:1.75rem;font-weight:700;margin-bottom:1rem;line-height:1.5}#start-screen h3{font-weight:400;color:#434343;margin-bottom:2rem}#start-screen .time-estimate{font-size:.85rem;color:var(--accent-color);margin-top:1.5rem}.neobrutal-button{border:3px solid var(--border-color);box-shadow:5px 5px 0 0 var(--border-color);background-color:var(--yellow);color:var(--border-color);font-weight:700;text-transform:uppercase;letter-spacing:.05em;transition:all .1s ease-out;cursor:pointer;padding:12px 28px;font-size:1rem;display:inline-flex;align-items:center;gap:10px}.neobrutal-button:hover:not(:disabled){background-color:#ffdb58;box-shadow:3px 3px 0 0 var(--border-color);transform:translate(2px,2px)}.enter-hint{margin-left:1rem;font-size:.9rem;color:var(--accent-color)}.enter-hint strong{font-family:monospace}.question-body{position:relative;width:100%}.question-number{position:absolute;left:0;top:.55rem;font-size:1.1rem;font-weight:500;color:var(--accent-color)}.question-content{padding-left:4.5rem}.question-title{font-size:1.8rem;font-weight:700;line-height:1.4;margin-bottom:2.5rem}.question-description{font-size:1.25rem;color:var(--accent-color);margin-top:-1.5rem;margin-bottom:2.5rem}.validation-error{color:var(--red);font-weight:500;margin-top:1rem;display:none}input.line-input,textarea.line-input{width:100%;border:none;background:0 0;border-bottom:3px solid var(--accent-color);font-size:1.75rem;padding:10px 0;color:var(--text-color);font-family:'Inter',sans-serif;font-weight:500;transition:border-color .3s}textarea.line-input{height:120px;resize:none}input.line-input:focus,textarea.line-input:focus{outline:0;border-bottom-color:var(--border-color)}input.line-input::placeholder,textarea.line-input::placeholder{color:#ccc}.ok-button-container{display:flex;align-items:center;margin-top:2rem}.options-container{display:flex;flex-direction:column;gap:.75rem;width:100%;max-width:500px}.options-container.yes-no-container{flex-direction:row;gap:1rem}.yes-no-container .option{flex:1;justify-content:center;padding:1.5rem 1rem;font-size:1.5rem}.yes-no-container .option .option-key{display:none}.option{display:flex;align-items:center;padding:.8rem 1rem;border:2px solid var(--border-color);box-shadow:3px 3px 0 0 var(--border-color);border-radius:4px;cursor:pointer;transition:all .2s ease;background-color:var(--background-color);font-size:1.1rem;font-weight:500}.option:hover{box-shadow:3px 3px 0 0 var(--yellow)}.option.selected{background-color:var(--yellow-selected);color:var(--background-color);border-color:var(--yellow-selected);box-shadow:3px 3px 0 0 var(--yellow-selected)}.option.selected .option-key{background-color:var(--background-color);color:var(--yellow-selected);border-color:var(--background-color)}.option-key{display:inline-flex;justify-content:center;align-items:center;min-width:28px;padding:0 5px;height:28px;border:2px solid var(--border-color);border-radius:4px;margin-right:1rem;font-size:.9rem;font-weight:700;background-color:var(--yellow);box-shadow:2px 2px 0 0 var(--border-color);transition:all .2s ease}.rating-scale-container{display:flex;gap:8px;flex-wrap:wrap}.rating-scale-box{width:45px;height:45px;display:flex;align-items:center;justify-content:center;border:2px solid var(--border-color);border-radius:4px;font-weight:700;cursor:pointer;transition:all .2s ease}.rating-scale-box:hover{background-color:#fef9c3;border-color:var(--yellow)}.rating-scale-box.selected{background-color:var(--yellow-selected);color:var(--background-color);border-color:var(--yellow-selected)}#nav-buttons{position:fixed;bottom:30px;right:30px;display:flex;gap:8px;z-index:50}.nav-btn{width:45px;height:45px;background-color:var(--text-color);color:#fff;border:2px solid var(--border-color);box-shadow:3px 3px 0 0 var(--border-color);border-radius:4px;cursor:pointer;font-size:1rem;transition:all .2s ease}.nav-btn:hover:not(:disabled){background-color:var(--yellow-selected);transform:translate(1px,1px);box-shadow:2px 2px 0 0 var(--border-color)}.nav-btn:disabled{background-color:#ccc;cursor:not-allowed;opacity:.7}#loading-overlay{position:fixed;inset:0;background-color:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;z-index:200}.spinner{width:50px;height:50px;border:5px solid #e0e0e0;border-top-color:var(--border-color);border-radius:50%;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}#powered-by{position:fixed;bottom:20px;left:20px;font-size:.8rem;color:var(--accent-color);z-index:50}#powered-by a{color:var(--text-color);font-weight:600;text-decoration:none;border-bottom:2px solid transparent;transition:border-color .2s}#powered-by a:hover{border-color:var(--text-color)}.hidden{display:none!important}</style></head><body><div id="preloader"><div id="preloader-text">Powered by <a href="https://kaheichan.neocities.org" target="_blank">Shellcraft</a> Forms</div><div id="preloader-bar"><div id="preloader-bar-fill"></div></div></div><div id="progress-bar" class="hidden"><div id="progress-bar-fill"></div></div><div id="form-container" class="hidden"><div id="content-area"><div id="start-screen" class="screen-wrapper active"><h1>${escape(formConfig.title)}</h1><h3>${escape(formConfig.description)}</h3><div><button id="start-btn" class="neobrutal-button"><span>Start</span></button><span class="enter-hint">press <strong>Enter ↵</strong></span></div><p class="time-estimate"><i class="fa-regular fa-clock"></i> ${escape(formConfig.timeEstimate)}</p><div class="logo-container">${startImagesHTML}</div></div></div></div><div id="nav-buttons" class="hidden"><button class="nav-btn" id="prev-btn" title="Previous question"><i class="fas fa-arrow-up"></i></button><button class="nav-btn" id="next-btn" title="Next question"><i class="fas fa-arrow-down"></i></button></div><div id="loading-overlay" class="hidden"><div class="spinner"></div></div><div id="powered-by" class="hidden">Powered by <a href="https://kaheichan.neocities.org" target="_blank">Shellcraft Forms</a></div><script>document.addEventListener('DOMContentLoaded',()=>{const SCRIPT_URL='${formConfig.googleScriptURL}',questions=${questionsJSON},contentArea=document.getElementById('content-area'),progressBarFill=document.getElementById('progress-bar-fill'),prevBtn=document.getElementById('prev-btn'),nextBtn=document.getElementById('next-btn'),startBtn=document.getElementById('start-btn'),navButtons=document.getElementById('nav-buttons'),loadingOverlay=document.getElementById('loading-overlay'),formContainer=document.getElementById('form-container'),progressBar=document.getElementById('progress-bar'),poweredBy=document.getElementById('powered-by'),preloader=document.getElementById('preloader');setTimeout(()=>{preloader.classList.add('fade-out'),setTimeout(()=>{preloader.style.display='none',formContainer.classList.remove('hidden'),progressBar.classList.remove('hidden'),poweredBy.classList.remove('hidden')},500)},1500);let currentQuestionIndex=-1;const formData={},EMAIL_REGEX=/^\\S+@\\S+\\.\\S+$/;const updateProgressBar=()=>{const e=questions.length,t=currentQuestionIndex<0?0:(currentQuestionIndex+1)/e*100;progressBarFill.style.width=\`\${t}%\`},getValidationState=()=>{const e=questions[currentQuestionIndex];if(!e)return{valid:!1};const t=formData[e.id];if(e.required&&(!t||String(t).trim().length<=0))return{valid:!1,message:"This field is required."};if("email"===e.type&&t&&!EMAIL_REGEX.test(t))return{valid:!1,message:"Please enter a valid email address."};return{valid:!0}},updateNavButtons=()=>{if(currentQuestionIndex<0)return void navButtons.classList.add('hidden');navButtons.classList.remove('hidden'),prevBtn.disabled=0===currentQuestionIndex;const{valid:e}=getValidationState();nextBtn.disabled=!e;const t=document.querySelector(\`#question-\${currentQuestionIndex} .neobrutal-ok-btn\`);t&&(t.disabled=!e)},createScreenElement=e=>{const t=questions[e],s=document.createElement('div');s.id=\`question-\${e}\`,s.className='screen-wrapper';let n='';const o=t.required?" *":"";switch(t.type){case"text":case"email":n+=\`<input type="\${"email"===t.type?"email":"text"}" id="\${t.id}" class="line-input" placeholder="\${t.placeholder||''}" value="\${formData[t.id]||''}">\`;break;case"long-text":n+=\`<textarea id="\${t.id}" class="line-input" placeholder="\${t.placeholder||''}"></textarea><span class="enter-hint"><strong>Shift + Enter</strong> for a new line</span>\`;break;case"date":n+=\`<input type="date" id="\${t.id}" class="line-input" value="\${formData[t.id]||''}">\`;break;case"radio":case"yes-no":{const e="yes-no"===t.type?"options-container yes-no-container":"options-container";let s='';t.options.forEach(e=>{const n=formData[t.id]===e.value?'selected':'';s+=\`<div class="option \${n}" data-value="\${e.value}"><span class="option-key">\${e.text.split('. ')[0]}</span>\${e.text.includes('. ')?e.text.substring(e.text.indexOf('. ')+2):e.text}</div>\`}),n+=\`<div class="\${e}">\${s}</div>\`}break;case"ratingScale":{let e='<div class="rating-scale-container">';for(let s=1;s<=10;s++){const n=formData[t.id]==s?'selected':'';e+=\`<div class="rating-scale-box \${n}" data-value="\${s}">\${s}</div>\`}e+='</div>',n+=e}break}if(['text','long-text','email','date'].includes(t.type)){const i=e===questions.length-1?"Submit":"OK";n+=\`<div class="ok-button-container"><button class="neobrutal-button neobrutal-ok-btn">\${i}</button><span class="enter-hint">press <strong>Enter ↵</strong></span></div>\`}n+='<div class="validation-error"></div>',s.innerHTML=\`<div class="question-body"><span class="question-number">\${e+1} →</span><div class="question-content"><h1 class="question-title">\${t.title}\${o}</h1>\${t.description?\`<p class="question-description">\${t.description}</p>\`:''}\${n}</div></div>\`,contentArea.appendChild(s);const i=s.querySelector('textarea.line-input');return i&&(i.value=formData[t.id]||''),s},addEventListenersToQuestion=(e,t)=>{const s=t.querySelector(".validation-error");if("radio"===e.type||"ratingScale"===e.type||"yes-no"===e.type){const n="radio"===e.type||"yes-no"===e.type?".option":".rating-scale-box";t.querySelectorAll(n).forEach(o=>{o.addEventListener('click',()=>{formData[e.id]=o.dataset.value,t.querySelectorAll(n).forEach(e=>e.classList.remove('selected')),o.classList.add('selected'),s&&(s.style.display="none"),updateNavButtons(),setTimeout(()=>navigate('next'),300)})})}else{const n=t.querySelector(".line-input"),o=t.querySelector(".neobrutal-ok-btn");o&&o.addEventListener('click',()=>navigate('next')),n&&n.addEventListener('input',()=>{formData[e.id]=n.value,s&&(s.style.display="none"),updateNavButtons()})}},jumpTo=t=>{if(t<0||t>=questions.length)return;for(let e=0;e<questions.length;e++){let n=document.getElementById(\`question-\${e}\`);n||(n=createScreenElement(e),addEventListenersToQuestion(questions[e],n))}const e=document.querySelectorAll('.screen-wrapper');e.forEach(e=>e.classList.remove('active','inactive-up','inactive-down'));const s=document.getElementById(\`question-\${t}\`);s&&(s.classList.add('active'),currentQuestionIndex=t,updateProgressBar(),updateNavButtons())},navigate=e=>{const t=document.querySelector(\`#question-\${currentQuestionIndex} .validation-error\`);if("next"===e){const{valid:e,message:n}=getValidationState();if(currentQuestionIndex>=0&&!e)return t&&(t.textContent=n,t.style.display="block"),void(t.parentElement.scrollIntoView({behavior:"smooth"}));t&&(t.style.display="none")}const s=currentQuestionIndex;let n;if("next"===e){if(s>=questions.length-1)return void submitForm();n=s+1}else{if(s<=0)return;n=s-1}const o=s>=0?\`question-\${s}\`:"start-screen",i=document.getElementById(o);let a=document.getElementById(\`question-\${n}\`);a||(a=createScreenElement(n),addEventListenersToQuestion(questions[n],a)),i&&i.classList.remove('active',i.classList.add("next"===e?"inactive-up":"inactive-down")),a&&(a.classList.remove('inactive-up','inactive-down'),"prev"===e&&a.classList.add('prepare-from-top'),setTimeout(()=>{a.classList.remove('prepare-from-top'),a.classList.add('active')},20)),currentQuestionIndex=n,updateProgressBar(),updateNavButtons()},submitForm=async()=>{loadingOverlay.classList.remove('hidden');const e=new FormData;Object.keys(formData).forEach(t=>e.append(t,formData[t]||''));const t=new Date,s=\`\${t.getFullYear()}-\${String(t.getMonth()+1).padStart(2,'0')}-\${String(t.getDate()).padStart(2,'0')} \${String(t.getHours()).padStart(2,'0')}:\${String(t.getMinutes()).padStart(2,'0')}:\${String(t.getSeconds()).padStart(2,'0')}\`;e.append('Timestamp',s);let n;try{await fetch(SCRIPT_URL,{method:'POST',body:e}),n=\`<h1 class="question-title" style="text-align:center;">\${"${escape(formConfig.successTitle)}"}</h1><p class="question-description" style="text-align:center;">\${"${escape(formConfig.successDescription)}"}</p>\`}catch(e){console.error('Form submission error:',e),n='<h1 class="question-title" style="text-align:center; color: #ef4444;">Oops!</h1><p class="question-description" style="text-align:center;">Something went wrong. Please try again.</p>'}finally{loadingOverlay.classList.add('hidden'),navButtons.classList.add('hidden'),progressBarFill.style.width='100%';const e=document.querySelector('.screen-wrapper.active');e&&e.classList.add('inactive-up');let t=document.getElementById('final-screen');t||(t=document.createElement('div'),t.id='final-screen',t.className='screen-wrapper',t.style.alignItems='center',contentArea.appendChild(t)),t.innerHTML=n,setTimeout(()=>t.classList.add('active'),100)}};startBtn.addEventListener('click',()=>navigate('next')),nextBtn.addEventListener('click',()=>navigate('next')),prevBtn.addEventListener('click',()=>navigate('prev')),window.addEventListener("message",e=>{const{action:t,index:s}=e.data;"jumpTo"===t&&jumpTo(s)}),document.addEventListener('keydown',e=>{const t=document.activeElement,s=t&&('INPUT'===t.tagName||'TEXTAREA'===t.tagName);if('Enter'===e.key&&!e.shiftKey){if(!s||"TEXTAREA"!==t.tagName)if(e.preventDefault(),-1===currentQuestionIndex)startBtn.click();else{const e=document.querySelector('.screen-wrapper.active .neobrutal-ok-btn');e&&!e.disabled?e.click():navigate('next')}}s||('ArrowDown'===e.key||'ArrowRight'===e.key)&&(e.preventDefault(),nextBtn.click()),('ArrowUp'===e.key||'ArrowLeft'===e.key)&&(e.preventDefault(),prevBtn.click())}),updateProgressBar(),updateNavButtons()});<\/script></body></html>`;
+            // NOTE: The embedded HTML, CSS, and JS is a complete, self-contained web application.
+            return `${configComment}<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${escape(formConfig.title)}</title>${faviconLink}<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700;800&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css"><style>:root{--border-color:${formConfig.theme.borderColor};--background-color:${formConfig.theme.backgroundColor};--text-color:${formConfig.theme.borderColor};--yellow:${formConfig.theme.primaryAccentColor};--yellow-selected:${formConfig.theme.primaryAccentColor};--accent-color:${formConfig.theme.secondaryAccentColor};--background-image-url:${formConfig.theme.backgroundImage};--background-blur:${formConfig.theme.backgroundBlur};--red:#ef4444}*{box-sizing:border-box;margin:0;padding:0}html{font-size:16px}body{font-family:'Inter',sans-serif;background-color:var(--background-color);color:var(--text-color);display:flex;align-items:center;justify-content:center;min-height:100vh;overflow:hidden;position:relative}body::before{content:'';position:absolute;inset:0;z-index:-1;background-image:var(--background-image-url);background-size:cover;background-position:center;filter:blur(var(--background-blur));transform:scale(1.1)}#preloader{position:fixed;inset:0;z-index:3000;background-color:var(--background-color);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s ease-out}#preloader.fade-out{opacity:0}#preloader-bar{width:250px;height:4px;background-color:#e5e7eb;border-radius:2px;overflow:hidden}#preloader-bar-fill{width:100%;height:100%;background-color:var(--border-color);animation:preload-anim 1.5s ease-out forwards}#preloader-text{font-size:.9rem;color:var(--accent-color);margin-bottom:1.25rem}#preloader-text a{font-weight:800;color:var(--text-color);text-decoration:none;border-bottom:3px solid var(--yellow)}@keyframes preload-anim{0%{transform:translateX(-100%)}100%{transform:translateX(0)}}#progress-bar{position:fixed;top:0;left:0;width:100%;height:5px;background-color:#e5e7eb;z-index:100}#progress-bar-fill{width:0%;height:100%;background-color:var(--yellow);transition:width .4s ease-in-out}#form-container{width:100%;max-width:700px;position:relative;height:500px;padding:0 20px}.screen-wrapper{position:absolute;width:100%;height:100%;left:0;top:0;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;opacity:0;visibility:hidden;transform:translateY(50px);transition:opacity .4s ease-out,transform .4s ease-out}.screen-wrapper.active{opacity:1;visibility:visible;transform:translateY(0);transition-delay:.1s}.screen-wrapper.inactive-up{opacity:0;transform:translateY(-50px)}.screen-wrapper.inactive-down{opacity:0;transform:translateY(50px)}.screen-wrapper.prepare-from-top{transform:translateY(-50px)}#start-screen{text-align:center;align-items:center}.logo-container{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:flex;gap:20px;align-items:center}.logo-container img{max-width:100px;height:50px;object-fit:contain;opacity:.7}#start-screen h1{font-size:1.75rem;font-weight:700;margin-bottom:1rem;line-height:1.5}#start-screen h3{font-weight:400;color:#434343;margin-bottom:2rem}#start-screen .time-estimate{font-size:.85rem;color:var(--accent-color);margin-top:1.5rem}.neobrutal-button{border:3px solid var(--border-color);box-shadow:5px 5px 0 0 var(--border-color);background-color:var(--yellow);color:var(--border-color);font-weight:700;text-transform:uppercase;letter-spacing:.05em;transition:all .1s ease-out;cursor:pointer;padding:12px 28px;font-size:1rem;display:inline-flex;align-items:center;gap:10px}.neobrutal-button:hover:not(:disabled){background-color:#ffdb58;box-shadow:3px 3px 0 0 var(--border-color);transform:translate(2px,2px)}.neobrutal-button:disabled{background-color:#d1d5db;cursor:not-allowed;box-shadow:none;transform:none}.enter-hint{margin-left:1rem;font-size:.9rem;color:var(--accent-color)}.enter-hint strong{font-family:monospace}.question-body{position:relative;width:100%}.question-number{position:absolute;left:0;top:.55rem;font-size:1.1rem;font-weight:500;color:var(--accent-color)}.question-content{padding-left:4.5rem}.question-title{font-size:1.8rem;font-weight:700;line-height:1.4;margin-bottom:2.5rem;transition:color .3s ease}.question-title.validation-failed{color:var(--red)}.question-description{font-size:1.25rem;color:var(--accent-color);margin-top:-1.5rem;margin-bottom:2.5rem}.validation-error{color:var(--red);font-weight:500;margin-top:1rem;display:none;font-size:1rem}input.line-input,textarea.line-input{width:100%;border:none;background:0 0;border-bottom:3px solid var(--accent-color);font-size:1.75rem;padding:10px 0;color:var(--text-color);font-family:'Inter',sans-serif;font-weight:500;transition:border-color .3s}textarea.line-input{height:120px;resize:none}input.line-input:focus,textarea.line-input:focus{outline:0;border-bottom-color:var(--border-color)}input.line-input::placeholder,textarea.line-input::placeholder{color:#ccc}.ok-button-container{display:flex;align-items:center;margin-top:2rem}.options-container{display:flex;flex-direction:column;gap:.75rem;width:100%;max-width:500px;max-height:300px;overflow-y:auto;padding-right:10px}.options-container.yes-no-container{flex-direction:row;gap:1rem}.yes-no-container .option{flex:1;justify-content:center;padding:1.5rem 1rem;font-size:1.5rem}.yes-no-container .option .option-key{display:none}.option{display:flex;align-items:center;padding:.8rem 1rem;border:2px solid var(--border-color);box-shadow:3px 3px 0 0 var(--border-color);border-radius:4px;cursor:pointer;transition:all .2s ease;background-color:var(--background-color);font-size:1.1rem;font-weight:500}.option:hover{box-shadow:3px 3px 0 0 var(--yellow)}.option.selected{background-color:var(--yellow-selected);color:var(--background-color);border-color:var(--yellow-selected);box-shadow:3px 3px 0 0 var(--yellow-selected)}.option.selected .option-key{background-color:var(--background-color);color:var(--yellow-selected);border-color:var(--background-color)}.option-key{display:inline-flex;justify-content:center;align-items:center;min-width:28px;padding:0 5px;height:28px;border:2px solid var(--border-color);border-radius:4px;margin-right:1rem;font-size:.9rem;font-weight:700;background-color:var(--yellow);box-shadow:2px 2px 0 0 var(--border-color);transition:all .2s ease}.checkbox-option .option-key::before{font-family:'Font Awesome 6 Free';font-weight:900;content:'\\20';font-size:1.1em}.checkbox-option.selected .option-key::before{content:'\\f00c'}.rating-scale-container{display:flex;gap:8px;flex-wrap:wrap}.rating-scale-box{width:45px;height:45px;display:flex;align-items:center;justify-content:center;border:2px solid var(--border-color);border-radius:4px;font-weight:700;cursor:pointer;transition:all .2s ease}.rating-scale-box:hover{background-color:#fef9c3;border-color:var(--yellow)}.rating-scale-box.selected{background-color:var(--yellow-selected);color:var(--background-color);border-color:var(--yellow-selected)}.custom-dropdown-container{position:relative;width:100%;max-width:500px}.custom-dropdown-selected{display:flex;justify-content:space-between;align-items:center;padding:.8rem 1rem;border:3px solid var(--border-color);box-shadow:3px 3px 0 0 var(--border-color);border-radius:4px;cursor:pointer;background-color:var(--background-color);font-size:1.1rem;font-weight:500}.custom-dropdown-selected.placeholder{color:var(--accent-color)}.custom-dropdown-options{position:absolute;top:calc(100% + 10px);left:0;width:100%;background-color:var(--background-color);border:3px solid var(--border-color);box-shadow:5px 5px 0 0 var(--border-color);border-radius:4px;z-index:10;max-height:200px;overflow-y:auto;display:none}.custom-dropdown-options.show{display:block}.custom-dropdown-option{padding:.8rem 1rem;cursor:pointer;font-weight:500}.custom-dropdown-option:hover{background-color:var(--yellow)}.file-upload-area{width:100%;max-width:500px;border:3px dashed var(--border-color);border-radius:4px;padding:2rem;text-align:center;cursor:pointer;transition:all .2s ease;background-color:rgba(255,255,255,.5)}.file-upload-area.drag-over{background-color:var(--yellow);border-color:var(--border-color);border-style:solid}.file-upload-area .file-upload-text{font-weight:700;font-size:1.1rem}.file-upload-area .file-upload-hint{color:var(--accent-color);font-size:.9rem}.file-upload-area .file-preview{font-weight:500;margin-top:1rem;display:flex;align-items:center;justify-content:center;gap:.5rem}.file-upload-area .file-preview i{color:var(--accent-color)}#nav-buttons{position:fixed;bottom:30px;right:30px;display:flex;gap:8px;z-index:50}.nav-btn{width:45px;height:45px;background-color:var(--text-color);color:#fff;border:2px solid var(--border-color);box-shadow:3px 3px 0 0 var(--border-color);border-radius:4px;cursor:pointer;font-size:1rem;transition:all .2s ease}.nav-btn:hover:not(:disabled){background-color:var(--yellow-selected);transform:translate(1px,1px);box-shadow:2px 2px 0 0 var(--border-color)}.nav-btn:disabled{background-color:#ccc;cursor:not-allowed;opacity:.7}#loading-overlay{position:fixed;inset:0;background-color:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px);display:flex;align-items:center;justify-content:center;z-index:200}.spinner{width:50px;height:50px;border:5px solid #e0e0e0;border-top-color:var(--border-color);border-radius:50%;animation:spin 1s linear infinite}@keyframes spin{to{transform:rotate(360deg)}}#powered-by{position:fixed;bottom:20px;left:20px;font-size:.8rem;color:var(--accent-color);z-index:50}#powered-by a{color:var(--text-color);font-weight:600;text-decoration:none;border-bottom:2px solid transparent;transition:border-color .2s}#powered-by a:hover{border-color:var(--text-color)}.hidden{display:none!important}</style></head><body><div id="preloader"><div id="preloader-text">Powered by <a href="https://kaheichan.neocities.org" target="_blank">Shellcraft</a> Forms</div><div id="preloader-bar"><div id="preloader-bar-fill"></div></div></div><div id="progress-bar" class="hidden"><div id="progress-bar-fill"></div></div><div id="form-container" class="hidden"><div id="content-area"><div id="start-screen" class="screen-wrapper active"><h1>${escape(formConfig.title)}</h1><h3>${escape(formConfig.description)}</h3><div><button id="start-btn" class="neobrutal-button"><span>Start</span></button><span class="enter-hint">press <strong>Enter ↵</strong></span></div><p class="time-estimate">${formConfig.timeEstimate ? `<i class="fa-regular fa-clock"></i> ${escape(formConfig.timeEstimate)}` : ''}</p><div class="logo-container">${startImagesHTML}</div></div></div></div><div id="nav-buttons" class="hidden"><button class="nav-btn" id="prev-btn" title="Previous question"><i class="fas fa-arrow-up"></i></button><button class="nav-btn" id="next-btn" title="Next question"><i class="fas fa-arrow-down"></i></button></div><div id="loading-overlay" class="hidden"><div class="spinner"></div></div><div id="powered-by" class="hidden">Powered by <a href="https://kaheichan.neocities.org" target="_blank">Shellcraft Forms</a></div><script>document.addEventListener('DOMContentLoaded',()=>{const SCRIPT_URL='${formConfig.googleScriptURL}',FORM_NAME='${escape(formConfig.title)}',questions=${questionsJSON},contentArea=document.getElementById('content-area'),progressBarFill=document.getElementById('progress-bar-fill'),prevBtn=document.getElementById('prev-btn'),nextBtn=document.getElementById('next-btn'),startBtn=document.getElementById('start-btn'),navButtons=document.getElementById('nav-buttons'),loadingOverlay=document.getElementById('loading-overlay'),formContainer=document.getElementById('form-container'),progressBar=document.getElementById('progress-bar'),poweredBy=document.getElementById('powered-by'),preloader=document.getElementById('preloader');setTimeout(()=>{preloader.classList.add('fade-out'),setTimeout(()=>{preloader.style.display='none',formContainer.classList.remove('hidden'),progressBar.classList.remove('hidden'),poweredBy.classList.remove('hidden')},500)},1500);let currentQuestionIndex=-1;const formData={},fileData={};const EMAIL_REGEX=/^\\S+@\\S+\\.\\S+$/;const sanitizeInput=e=>e?(new DOMParser).parseFromString(e,"text/html").body.textContent||"":"";const updateProgressBar=()=>{const e=questions.length,t=currentQuestionIndex<0?0:(currentQuestionIndex+1)/e*100;progressBarFill.style.width=\`\${t}%\`},getValidationState=()=>{const e=questions[currentQuestionIndex];if(!e)return{valid:!1};const t=formData[e.id];if(e.required){if("file-upload"===e.type){if(!fileData[e.id])return{valid:!1,message:"A file is required."}}else if(!t||String(t).trim().length<=0||"checkbox"===e.type&&t.length===0)return{valid:!1,message:"This question is required."}}return"email"===e.type&&t&&!EMAIL_REGEX.test(t)?{valid:!1,message:"Please enter a valid email."}:{valid:!0}},updateNavButtons=()=>{if(currentQuestionIndex<0)return void navButtons.classList.add('hidden');navButtons.classList.remove('hidden'),prevBtn.disabled=0===currentQuestionIndex;const{valid:e}=getValidationState();nextBtn.disabled=!e;const t=document.querySelector(\`#question-\${currentQuestionIndex} .neobrutal-ok-btn\`);t&&(t.disabled=!e)},createScreenElement=e=>{const t=questions[e],s=document.createElement('div');s.id=\`question-\${e}\`,s.className='screen-wrapper';let n='';const o=t.required?" *":"";switch(t.type){case"text":case"email":n+=\`<input type="\${"email"===t.type?"email":"text"}" id="\${t.id}" class="line-input" placeholder="\${t.placeholder||''}" value="\${formData[t.id]||''}">\`;break;case"long-text":n+=\`<textarea id="\${t.id}" class="line-input" placeholder="\${t.placeholder||''}"></textarea><span class="enter-hint"><strong>Shift + Enter</strong> for a new line</span>\`;break;case"datetime":{const e=t.datetimeFormat||"datetime-local";n+=\`<input type="\${e}" id="\${t.id}" class="line-input" value="\${formData[t.id]||''}">\`}break;case"radio":case"yes-no":{const e="yes-no"===t.type?"options-container yes-no-container":"options-container";let s='';t.options.forEach(e=>{const n=formData[t.id]===e.value?'selected':'';s+=\`<div class="option \${n}" data-value="\${e.value}"><span class="option-key">\${e.text.split('. ')[0]}</span>\${e.text.includes('. ')?e.text.substring(e.text.indexOf('. ')+2):e.text}</div>\`}),n+=\`<div class="\${e}">\${s}</div>\`}break;case"checkbox":{let e='<div class="options-container">';const s=formData[t.id]||[];t.options.forEach(t=>{const o=s.includes(t.value)?"selected":"";e+=\`<div class="option checkbox-option \${o}" data-value="\${t.value}"><span class="option-key"></span>\${t.text.includes('. ')?t.text.substring(t.text.indexOf('. ')+2):t.text}</div>\`}),e+='</div>',n+=e}break;case"dropdown":{let e='<div class="custom-dropdown-container"><div class="custom-dropdown-selected placeholder">Select an option<i class="fa-solid fa-chevron-down"></i></div><div class="custom-dropdown-options">';if(formData[t.id]){const s=t.options.find(e=>e.value===formData[t.id]);s&&(e='<div class="custom-dropdown-container"><div class="custom-dropdown-selected">\`+s.text+\`<i class="fa-solid fa-chevron-down"></i></div><div class="custom-dropdown-options">')}t.options.forEach(t=>{e+=\`<div class="custom-dropdown-option" data-value="\${t.value}">\${t.text}</div>\`}),e+='</div></div>',n+=e}break;case"ratingScale":{let e='<div class="rating-scale-container">';for(let s=1;s<=10;s++){const n=formData[t.id]==s?'selected':'';e+=\`<div class="rating-scale-box \${n}" data-value="\${s}">\${s}</div>\`}e+='</div>',n+=e}break;case"file-upload":n+='<div class="file-upload-area"><input type="file" class="hidden"><div class="file-upload-icon"><i class="fa-solid fa-cloud-arrow-up fa-3x" style="color: var(--accent-color);"></i></div><p class="file-upload-text">Drag & drop a file or click to select</p><p class="file-upload-hint">Document or image files accepted</p><div class="file-preview"></div></div>'}if(!["radio","yes-no","ratingScale","dropdown","file-upload"].includes(t.type)){const i=e===questions.length-1?"Submit":"OK";n+=\`<div class="ok-button-container"><button class="neobrutal-button neobrutal-ok-btn">\${i}</button><span class="enter-hint">press <strong>Enter ↵</strong></span></div>\`}n+='<div class="validation-error"></div>',s.innerHTML=\`<div class="question-body"><span class="question-number">\${e+1} →</span><div class="question-content"><h1 class="question-title">\${t.title}\${o}</h1>\${t.description?\`<p class="question-description">\${t.description}</p>\`:''}\${n}</div></div>\`,contentArea.appendChild(s);const i=s.querySelector('textarea.line-input');return i&&(i.value=formData[t.id]||''),s},addEventListenersToQuestion=(e,t)=>{const s=t.querySelector(".validation-error"),n=t.querySelector(".question-title");if(["radio","yes-no"].includes(e.type)){t.querySelectorAll(".option").forEach(o=>{o.addEventListener("click",()=>{formData[e.id]=o.dataset.value,t.querySelectorAll(".option").forEach(e=>e.classList.remove("selected")),o.classList.add("selected"),s&&(s.style.display="none"),n.classList.remove("validation-failed"),updateNavButtons(),setTimeout(()=>navigate("next"),300)})})}else if("checkbox"===e.type){formData[e.id]=formData[e.id]||[],t.querySelectorAll(".checkbox-option").forEach(o=>{o.addEventListener("click",()=>{const t=o.dataset.value;o.classList.toggle("selected");const l=formData[e.id].indexOf(t);l>-1?formData[e.id].splice(l,1):formData[e.id].push(t),s&&(s.style.display="none"),n.classList.remove("validation-failed"),updateNavButtons()})});const o=t.querySelector(".neobrutal-ok-btn");o&&o.addEventListener("click",()=>navigate("next"))}else if("dropdown"===e.type){const o=t.querySelector(".custom-dropdown-selected"),l=t.querySelector(".custom-dropdown-options");o.addEventListener("click",()=>{l.classList.toggle("show")}),l.querySelectorAll(".custom-dropdown-option").forEach(t=>{t.addEventListener("click",()=>{const i=t.dataset.value;o.textContent=t.textContent,o.classList.remove("placeholder"),formData[e.id]=i,l.classList.remove("show"),s&&(s.style.display="none"),n.classList.remove("validation-failed"),updateNavButtons(),setTimeout(()=>navigate("next"),300)})}),document.addEventListener("click",e=>{l.classList.contains("show")&&!o.contains(e.target)&&l.classList.remove("show")})}else if("ratingScale"===e.type){t.querySelectorAll(".rating-scale-box").forEach(o=>{o.addEventListener("click",()=>{formData[e.id]=o.dataset.value,t.querySelectorAll(".rating-scale-box").forEach(e=>e.classList.remove("selected")),o.classList.add("selected"),s&&(s.style.display="none"),n.classList.remove("validation-failed"),updateNavButtons(),setTimeout(()=>navigate("next"),300)})})}else if("file-upload"===e.type){const o=t.querySelector(".file-upload-area"),l=o.querySelector("input[type=file]"),i=o.querySelector(".file-preview");const a=t=>{t&&t.name?(i.innerHTML=\`<i class="fa-solid fa-file-check"></i> \${t.name}\`,fileData[e.id]=t,s&&(s.style.display="none"),n.classList.remove("validation-failed"),updateNavButtons(),setTimeout(()=>navigate("next"),500)):(delete fileData[e.id],i.innerHTML="",updateNavButtons())};o.addEventListener("click",()=>l.click()),l.addEventListener("change",()=>a(l.files[0])),["dragenter","dragover","dragleave","drop"].forEach(e=>o.addEventListener(e,e=>{e.preventDefault(),e.stopPropagation()})),["dragenter","dragover"].forEach(e=>o.addEventListener(e,()=>o.classList.add("drag-over"))),["dragleave","drop"].forEach(e=>o.addEventListener(e,()=>o.classList.remove("drag-over"))),o.addEventListener("drop",e=>{a(e.dataTransfer.files[0])})}else{const o=t.querySelector(".line-input"),l=t.querySelector(".neobrutal-ok-btn");l&&l.addEventListener("click",()=>navigate("next")),o&&o.addEventListener("input",()=>{formData[e.id]=sanitizeInput(o.value),s&&(s.style.display="none"),n.classList.remove("validation-failed"),updateNavButtons()})}},jumpTo=t=>{if(t<0||t>=questions.length)return;for(let e=0;e<questions.length;e++){let n=document.getElementById(\`question-\${e}\`);n||(n=createScreenElement(e),addEventListenersToQuestion(questions[e],n))}const e=document.querySelectorAll('.screen-wrapper');e.forEach(e=>e.classList.remove('active','inactive-up','inactive-down'));const s=document.getElementById(\`question-\${t}\`);s&&(s.classList.add('active'),currentQuestionIndex=t,updateProgressBar(),updateNavButtons())},navigate=e=>{const t=document.getElementById(\`question-\${currentQuestionIndex}\`);if("next"===e){const{valid:e,message:s}=getValidationState();if(currentQuestionIndex>=0&&!e){const e=t.querySelector(".validation-error"),o=t.querySelector(".question-title");return e&&(e.textContent=s,e.style.display="block"),o&&o.classList.add("validation-failed"),void(t.scrollIntoView({behavior:"smooth"}))}}t&&t.querySelector(".validation-error")&&(t.querySelector(".validation-error").style.display="none"),t&&t.querySelector(".question-title")&&t.querySelector(".question-title").classList.remove("validation-failed");const s=currentQuestionIndex;let n;if("next"===e){if(s>=questions.length-1)return void submitForm();n=s+1}else{if(s<=0)return;n=s-1}const o=s>=0?\`question-\${s}\`:"start-screen",l=document.getElementById(o);let i=document.getElementById(\`question-\${n}\`);i||(i=createScreenElement(n),addEventListenersToQuestion(questions[n],i)),l&&l.classList.remove('active',l.classList.add("next"===e?"inactive-up":"inactive-down")),i&&(i.classList.remove('inactive-up','inactive-down'),"prev"===e&&i.classList.add('prepare-from-top'),setTimeout(()=>{i.classList.remove('prepare-from-top'),i.classList.add('active')},20)),currentQuestionIndex=n,updateProgressBar(),updateNavButtons()},fileToBase64=e=>new Promise((t,s)=>{const n=new FileReader;n.readAsDataURL(e),n.onload=()=>t(n.result),n.onerror=e=>s(e)}),submitForm=async()=>{loadingOverlay.classList.remove("hidden");const e={...formData,formName:FORM_NAME};for(const[t,s]of Object.entries(fileData))if(s){const n=questions.find(e=>e.id===t);e.fileData=await fileToBase64(s),e.fileName=s.name,e.fileType=s.type,e.fileQuestionId=n.id}for(const[t,s]of Object.entries(e))"checkbox"===questions.find(e=>e.id===t)?.type&&Array.isArray(s)&&(e[t]=s.join(", "));const t=new Date,s=\`\${t.getFullYear()}-\${String(t.getMonth()+1).padStart(2,"0")}-\${String(t.getDate()).padStart(2,"0")} \${String(t.getHours()).padStart(2,"0")}:\${String(t.getMinutes()).padStart(2,"0")}:\${String(t.getSeconds()).padStart(2,"0")}\`;e.Timestamp=s;let n;try{await fetch(SCRIPT_URL,{method:"POST",mode:"no-cors",headers:{"Content-Type":"application/json"},body:JSON.stringify(e)}),n=\`<h1 class="question-title" style="text-align:center;">\${"${escape(formConfig.successTitle)}"}</h1><p class="question-description" style="text-align:center;">\${"${escape(formConfig.successDescription)}"}</p>\`}catch(e){console.error("Form submission error:",e),n='<h1 class="question-title" style="text-align:center; color: #ef4444;">Oops!</h1><p class="question-description" style="text-align:center;">Something went wrong. Please try again.</p>'}finally{loadingOverlay.classList.add("hidden"),navButtons.classList.add("hidden"),progressBarFill.style.width="100%";const e=document.querySelector(".screen-wrapper.active");e&&e.classList.add("inactive-up");let t=document.getElementById("final-screen");t||(t=document.createElement("div"),t.id="final-screen",t.className="screen-wrapper",t.style.alignItems="center",contentArea.appendChild(t)),t.innerHTML=n,setTimeout(()=>t.classList.add("active"),100)}};startBtn.addEventListener("click",()=>navigate("next")),nextBtn.addEventListener("click",()=>navigate("next")),prevBtn.addEventListener("click",()=>navigate("prev")),window.addEventListener("message",e=>{const{action:t,index:s}=e.data;"jumpTo"===t&&jumpTo(s)}),document.addEventListener("keydown",e=>{const t=document.activeElement,s=t&&("INPUT"===t.tagName||"TEXTAREA"===t.tagName);if("Enter"===e.key&&!e.shiftKey){if(!s||"TEXTAREA"!==t.tagName)if(e.preventDefault(),-1===currentQuestionIndex)startBtn.click();else{const e=document.querySelector(".screen-wrapper.active .neobrutal-ok-btn");e&&!e.disabled?e.click():navigate("next")}}{const t=document.querySelector(".custom-dropdown-options.show");!s&&!t&&("ArrowDown"===e.key||"ArrowRight"===e.key)&&(e.preventDefault(),nextBtn.click()),!s&&!t&&("ArrowUp"===e.key||"ArrowLeft"===e.key)&&(e.preventDefault(),prevBtn.click())}}),updateProgressBar(),updateNavButtons()});<\/script></body></html>`;
         };
         
         const renderPreview = () => { ui.previewFrame.srcdoc = generateHTML(); };
@@ -464,13 +568,19 @@ Here are the questions:
             const jsonText = ui.jsonImportText.value.trim();
             if (!jsonText) { alert('Please paste JSON into the text area first.'); return; }
             try {
-                const newQuestions = JSON.parse(jsonText);
-                if (!Array.isArray(newQuestions)) throw new Error('JSON is not an array.');
-                formConfig.questions = newQuestions;
+                const parsedJson = JSON.parse(jsonText);
+                if (Array.isArray(parsedJson)) { // Just a list of questions
+                    formConfig.questions = parsedJson;
+                } else if (typeof parsedJson === 'object' && parsedJson.questions) { // Full config object
+                    Object.assign(formConfig, parsedJson);
+                } else {
+                    throw new Error('JSON is not a valid question array or form configuration object.');
+                }
                 syncUIToState();
                 renderPreview();
                 ui.jsonImportText.value = '';
-                alert(`${newQuestions.length} questions imported successfully!`);
+                alert(`Form configuration imported successfully! You can now scroll down to view and edit the questions.`);
+
             } catch (error) {
                 alert(`Invalid JSON format: ${error.message}`);
             }
@@ -480,11 +590,10 @@ Here are the questions:
         ui.startCreatorBtn.addEventListener('click', () => { ui.startScreen.style.display = 'none'; ui.creatorWrapper.classList.remove('hidden'); });
         ui.generatorUI.addEventListener('input', syncStateToUI);
         ui.addQuestionBtn.addEventListener('click', () => { 
-            formConfig.questions.push({ id: `Question${formConfig.questions.length + 1}`, title: 'New Question', type: 'text', required: false }); 
-            renderQuestionsUI(); renderPreview(); 
-            const questionsHeader = document.getElementById('questions-accordion-header');
-            const panel = questionsHeader.nextElementSibling;
-            if (questionsHeader.classList.contains('active')) { panel.style.maxHeight = panel.scrollHeight + "px"; }
+            formConfig.questions.push({ id: `Question${formConfig.questions.length + 1}`, title: 'New Question', type: 'text', required: true }); 
+            renderQuestionsUI(); 
+            renderPreview(); 
+            ui.addQuestionBtn.scrollIntoView({ behavior: 'smooth' });
         });
         ui.generateBtn.addEventListener('click', downloadHTML);
         ui.jsonImportBtn.addEventListener('click', handleJsonImport);
@@ -518,7 +627,7 @@ Here are the questions:
                         renderPreview();
                         alert('Form imported successfully!');
                     } catch (err) { alert('Failed to parse the configuration from the HTML file.'); console.error(err); }
-                } else { alert('This does not appear to be a valid Shellcraft form file.'); }
+                } else { alert('This does not appear to be a valid Shellcraft form file. You could try to upload this file to an AI model and paste the JSON code in the AI Upload section.'); }
             };
             reader.readAsText(file);
             e.target.value = '';
@@ -526,14 +635,27 @@ Here are the questions:
 
         // Preview Interaction Logic
         ui.previewOverlay.addEventListener('click', () => { ui.previewOverlay.classList.add('hidden'); });
-        ui.generatorUI.addEventListener('click', () => { ui.previewOverlay.classList.remove('hidden'); });
+        ui.generatorUI.addEventListener('click', (e) => { 
+            if (!e.target.closest('#preview-container')) {
+                ui.previewOverlay.classList.remove('hidden');
+            }
+        });
         
         // INITIALIZATION
         syncUIToState(); 
         renderPreview();
         initAccordion();
         document.querySelector('.accordion-header').click();
-        new Sortable(ui.questionsList, { animation: 150, handle: '.question-card-header', onEnd: (evt) => { const [movedItem] = formConfig.questions.splice(evt.oldIndex, 1); formConfig.questions.splice(evt.newIndex, 0, movedItem); renderQuestionsUI(); renderPreview(); } });
+        new Sortable(ui.questionsList, { 
+            animation: 150, 
+            handle: '.question-card-header', 
+            onEnd: (evt) => { 
+                const [movedItem] = formConfig.questions.splice(evt.oldIndex, 1); 
+                formConfig.questions.splice(evt.newIndex, 0, movedItem); 
+                renderQuestionsUI(); 
+                renderPreview(); 
+            } 
+        });
     });
     </script>
 </body>
